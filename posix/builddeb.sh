@@ -215,7 +215,8 @@ build_qomp ()
 	check_dir ${builddir}
 	get_src
 	project="qomp"
-	ver="0.1-beta"
+	versia=`grep APPLICATION_VERSION ${projectdir}/src/defines.h`
+	ver=`echo $versia | cut -d ' ' -f 3 | cut -d '"' -f 2`
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cp -rf ${projectdir}/* ${debdir}/

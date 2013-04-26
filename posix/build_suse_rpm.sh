@@ -34,7 +34,7 @@ cd ${homedir}
 defines=${svndir}/src/defines.h
 ver_s=`grep APPLICATION_VERSION $defines`
 ver=`echo $ver_s | cut -d ' ' -f 3 | cut -d '"' -f 2`
-package_name=${progname}-${ver}_beta.tar.gz
+package_name=${progname}-${ver}.tar.gz
 tmpbuilddir=${rpmbuild_dir}/${progname}-${ver}
 if [ -d "${tmpbuilddir}" ]
 then
@@ -47,7 +47,7 @@ tar -pczf ${package_name} ${progname}-${ver}
 cat <<END >${homedir}/rpmbuild/SPECS/${progname}.spec
 Summary: Quick(Qt) Online Music Player
 Name: $progname
-Version: $ver_beta
+Version: $ver
 Release: 1
 License: GPL-2
 Group: Applications/Sound
