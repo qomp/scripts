@@ -6,7 +6,8 @@ builddir=${srcdir}/tmpbuild
 exitdir=${srcdir}/debians
 data=`LANG=en date +'%a, %d %b %Y %T %z'`
 year=`date +'%Y'`
-prefix="usr/local"
+PREFIX=/usr
+pprefix="usr"
 project=""
 section=""
 arch="all"
@@ -93,10 +94,16 @@ get_src ()
 	if [ ! -d "${projectdir}" ]
 	then
 		git clone https://code.google.com/p/qomp/ ${projectdir}
+		cd ${projectdir}
+		git submodule init
+		git submodule update
 	else
 		cd ${projectdir}
 		git pull
+		git submodule update
+		git pull
 	fi
+	cd ${srcdir}
 
 }
 
@@ -184,16 +191,11 @@ rules_qt='#!/usr/bin/make -f
 config.status: configure
 	dh_testdir
 
-	# Add here commands to configure the package.
-	./configure --host=$(DEB_HOST_GNU_TYPE)
-	--build=$(DEB_BUILD_GNU_TYPE)
-	--prefix=/usr 
-  
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/qmake.mk
 
 # Add here any variable or target overrides you need.
-QMAKE=qmake-qt4
+QMAKE=qmake-qt4 PREFIX=/usr
 CFLAGS=-O3
 CXXFLAGS=-O3'
 
@@ -222,25 +224,27 @@ build_qomp ()
 	arch="any"
 	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev"
 	addit="#"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4), libarchive12"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4), libarchive12"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.'
 	docfiles="README
 LICENSE.txt"
 	
-	dirs="${prefix}/bin
-${prefix}/share/icons/hicolor/128x128/apps
-${prefix}/share/icons/hicolor/16x16/apps
-${prefix}/share/icons/hicolor/24x24/apps
-${prefix}/share/icons/hicolor/48x48/apps
-${prefix}/share/icons/hicolor/64x64/apps
-${prefix}/share/icons/hicolor/32x32/apps
-${prefix}/share/applications"
+	dirs="${pprefix}/bin
+${pprefix}/share/icons/hicolor/128x128/apps
+${pprefix}/share/icons/hicolor/16x16/apps
+${pprefix}/share/icons/hicolor/24x24/apps
+${pprefix}/share/icons/hicolor/48x48/apps
+${pprefix}/share/icons/hicolor/64x64/apps
+${pprefix}/share/icons/hicolor/32x32/apps
+${pprefix}/share/applications
+${pprefix}/share/qomp
+${pprefix}/share/qomp/translations"
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
 	prepare_specs
 	cd ${debdir}
-	qmake qomp.pro
+	qmake PREFIX=/usr qomp.pro
 	build_deb
 	check_dir ${exitdir}
 	cp -f ${builddir}/*.deb	${exitdir}/
