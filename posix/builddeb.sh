@@ -45,7 +45,7 @@ else
 	fi
 fi
 
-Maintainer="${username} <${username}@${hostname}>"
+Maintainer="KukuRuzo <thetvg@gmail.com>"
 
 quit ()
 {
@@ -119,7 +119,7 @@ changelog="${project} (${ver}-1) unstable; urgency=low
 
   * new upsream release
 
- -- ${username} <${username}@gmail.com>  ${data}"
+ -- ${username} <thetvg@gmail.com>  ${data}"
 
 compat="7"
 control="Source: ${project}
@@ -216,7 +216,7 @@ build_qomp ()
 	get_src
 	project="qomp"
 	versia=`grep APPLICATION_VERSION ${projectdir}/src/defines.h`
-	ver=`echo $versia | cut -d ' ' -f 3 | cut -d '"' -f 2`
+	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cp -rf ${projectdir}/* ${debdir}/
