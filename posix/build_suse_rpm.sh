@@ -33,7 +33,7 @@ fi
 cd ${homedir}
 defines=${svndir}/src/defines.h
 ver_s=`grep APPLICATION_VERSION $defines`
-ver=`echo $ver_s | cut -d ' ' -f 3 | cut -d '"' -f 2`
+ver=`echo $ver_s | cut -d '"' -f 2 | sed "s/\s/_/"`
 package_name=${progname}-${ver}.tar.gz
 tmpbuilddir=${rpmbuild_dir}/${progname}-${ver}
 if [ -d "${tmpbuilddir}" ]
@@ -43,6 +43,7 @@ fi
 mkdir -p ${tmpbuilddir}
 cp -rf ${svndir}/* ${tmpbuilddir}/
 cd ${rpmbuild_dir}
+sed "s/DEFINES += HAVE_PHONON/DEFINES += HAVE_PHONON\nINCLUDEPATH += \/usr\/include\/KDE/" -i ${tmpbuilddir}/qomp.pro
 tar -pczf ${package_name} ${progname}-${ver}
 cat <<END >${homedir}/rpmbuild/SPECS/${progname}.spec
 Summary: Quick(Qt) Online Music Player
@@ -53,7 +54,7 @@ License: GPL-2
 Group: Applications/Sound
 URL: https://code.google.com/p/qomp/
 Source0: $package_name
-BuildRequires: gcc-c++, zlib-devel, libphonon-devel
+BuildRequires: gcc-c++, zlib-devel, phonon-devel
 %{!?_without_freedesktop:BuildRequires: desktop-file-utils}
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build
@@ -104,4 +105,3 @@ cd ${homedir}/rpmbuild/SPECS
 rpmbuild -ba --clean --rmspec --rmsource ${progname}.spec
 echo "Cleaning..."
 rm -rf ${rpmbuild_dir}
-
