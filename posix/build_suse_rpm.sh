@@ -43,7 +43,6 @@ fi
 mkdir -p ${tmpbuilddir}
 cp -rf ${svndir}/* ${tmpbuilddir}/
 cd ${rpmbuild_dir}
-sed "s/DEFINES += HAVE_PHONON/DEFINES += HAVE_PHONON\nINCLUDEPATH += \/usr\/include\/KDE/" -i ${tmpbuilddir}/qomp.pro
 tar -pczf ${package_name} ${progname}-${ver}
 cat <<END >${homedir}/rpmbuild/SPECS/${progname}.spec
 Summary: Quick(Qt) Online Music Player
