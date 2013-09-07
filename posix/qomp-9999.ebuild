@@ -6,6 +6,8 @@ EAPI=4
 inherit qt4-r2 git-2
 DEPEND="
 	dev-qt/qtgui
+	dev-qt/qtwebkit
+	dev-libs/openssl
 	media-libs/phonon
 "
 IUSE="
@@ -15,6 +17,7 @@ IUSE="
 RDEPEND="
 	${DEPEND}
 	dev-qt/qtcore
+	dev-qt/qtdbus
 "
 DESCRIPTION="Quick(Qt) Online Music Player - one player for different online music hostings"
 HOMEPAGE="https://code.google.com/p/qomp/"
