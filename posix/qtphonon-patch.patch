@@ -1,0 +1,37 @@
+--- qomp/src/qompphononmetadataresolver.h
++++ qomp.red/src/qompphononmetadataresolver.h
+@@ -22,7 +22,7 @@
+ 
+ #include "qompmetadataresolver.h"
+ 
+-#include <Phonon/MediaObject>
++#include <phonon/MediaObject>
+ 
+ class QompPhononMetaDataResolver : public QompMetaDataResolver
+ {
+--- qomp/src/qompphononplayer.cpp
++++ qomp.red/src/qompphononplayer.cpp
+@@ -20,9 +20,9 @@
+ #include "qompphononplayer.h"
+ #include "qompphononmetadataresolver.h"
+ 
+-#include <Phonon/AudioOutput>
+-#include <Phonon/SeekSlider>
+-#include <Phonon/VolumeSlider>
++#include <phonon/AudioOutput>
++#include <phonon/SeekSlider>
++#include <phonon/VolumeSlider>
+ #include <phonon/backendcapabilities.h>
+ 
+ //#define DEBUG_OUTPUT
+--- qomp/src/qompphononplayer.h
++++ qomp.red/src/qompphononplayer.h
+@@ -21,7 +21,7 @@
+ #define QOMPPHONONPLAYER_H
+ 
+ #include "qompplayer.h"
+-#include <Phonon/MediaObject>
++#include <phonon/MediaObject>
+ 
+ namespace Phonon {
+ class AudioOutput;
