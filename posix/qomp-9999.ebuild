@@ -10,15 +10,14 @@ DEPEND="
 	dev-libs/openssl
 "
 IUSE="
-	phonon
 	qtphonon
 	gstreamer
 	vlc
 "
 
-REQUIRED_USE="phonon? ( !qtphonon )"
+REQUIRED_USE="qtphonon? ( !gstreamer )"
 
-REQUIRED_USE="phonon? ( || ( gstreamer vlc ) )"
+REQUIRED_USE="qtphonon? ( !vlc )"
 
 RDEPEND="
 	${DEPEND}
@@ -33,20 +32,17 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 LICENSE="GPL-3"
 
-if use phonon; then
-	DEPEND="${DEPEND} media-libs/phonon"
-	if use gstreamer; then
-		DEPEND="${DEPEND} media-libs/phonon-gstreamer"
-	fi
-	if use vlc; then
-		DEPEND="${DEPEND} media-libs/phonon-vlc"
-	fi
-fi 
+PATCH1="${FILESDIR}/qtphonon-patch.patch"
+
+if use gstreamer; then
+  DEPEND="${DEPEND} media-libs/phonon media-libs/phonon-gstreamer"
+fi
+if use vlc; then
+  DEPEND="${DEPEND} media-libs/phonon media-libs/phonon-vlc"
+ fi
 
 if use qtphonon; then
-
 	DEPEND="${DEPEND} dev-qt/qtphonon"
-
 fi
 
 src_prepare() {
@@ -58,6 +54,6 @@ src_prepare() {
 	if use qtphonon; then
 		cd ${EGIT_SOURCEDIR}
 		#patch must be in files dir
-		epatch "${FILESDIR}/qtphonon-patch.patch"
+		epatch ${PATCH1}
 	fi
 }
