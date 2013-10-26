@@ -4,29 +4,39 @@
 EAPI=4
 
 inherit qt4-r2 git-2
-DEPEND="
-	dev-qt/qtgui
-	dev-qt/qtwebkit
-	dev-libs/openssl
-"
+
 IUSE="
 	qtphonon
 	gstreamer
 	vlc
 "
 
+DEPEND="
+	dev-qt/qtgui
+	dev-qt/qtwebkit
+	dev-libs/openssl
+	!qtphonon? ( media-libs/phonon )
+	qtphonon? ( dev-qt/qtphonon )
+	gstreamer? ( media-libs/phonon-gstreamer )
+	vlc? ( media-libs/phonon-vlc )
+"
+
 REQUIRED_USE="qtphonon? ( !gstreamer )"
 
 REQUIRED_USE="qtphonon? ( !vlc )"
+
+REQUIRED_USE="|| ( qtphonon gstreamer vlc )"
 
 RDEPEND="
 	${DEPEND}
 	dev-qt/qtcore
 	dev-qt/qtdbus
 "
+
 DESCRIPTION="Quick(Qt) Online Music Player - one player for different online music hostings"
 HOMEPAGE="https://code.google.com/p/qomp/"
 EGIT_REPO_URI="https://thetvg@code.google.com/p/qomp/"
+EGIT_HAS_SUBMODULES="y"
 
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
@@ -34,26 +44,14 @@ LICENSE="GPL-3"
 
 PATCH1="${FILESDIR}/qtphonon-patch.patch"
 
-if use gstreamer; then
-  DEPEND="${DEPEND} media-libs/phonon media-libs/phonon-gstreamer"
-fi
-if use vlc; then
-  DEPEND="${DEPEND} media-libs/phonon media-libs/phonon-vlc"
- fi
+qt4-r2_src_configure() {
+	eqmake4 ${EGIT_SOURCEDIR}/qomp.pro PREFIX=/usr
+}
 
-if use qtphonon; then
-	DEPEND="${DEPEND} dev-qt/qtphonon"
-fi
-
-src_prepare() {
-#change default prefix
-	cd ${EGIT_SOURCEDIR}
-	git submodule init
-	git submodule update
-	qmake PREFIX=/usr qomp.pro
+qt4-r2_src_prepare() {
 	if use qtphonon; then
 		cd ${EGIT_SOURCEDIR}
 		#patch must be in files dir
-		epatch ${PATCH1}
+		epatch ${PATCH1} || die "patching with ${PATCH1} failed"
 	fi
 }
