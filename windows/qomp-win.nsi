@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 0.3 beta"
+!define APPNAMEANDVERSION "qomp 0.4 beta"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-0.3-beta-win32.exe"
+OutFile "qomp-0.4-beta-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -57,14 +57,6 @@ Section "qomp" Section1
 	File "qomp\Qt5MultimediaWidgets.dll"
 	File "qomp\Qt5Network.dll"
 	File "qomp\Qt5OpenGL.dll"
-	File "qomp\Qt5PrintSupport.dll"
-	File "qomp\Qt5Qml.dll"
-	File "qomp\Qt5Quick.dll"
-	File "qomp\Qt5Sensors.dll"
-	File "qomp\Qt5Sql.dll"
-	File "qomp\Qt5V8.dll"
-	File "qomp\Qt5WebKit.dll"
-	File "qomp\Qt5WebKitWidgets.dll"
 	File "qomp\Qt5Widgets.dll"
 	File "qomp\Qt5Xml.dll"
 	SetOutPath "$INSTDIR\bearer\"
@@ -141,14 +133,6 @@ Section Uninstall
 	Delete "$INSTDIR\Qt5MultimediaWidgets.dll"
 	Delete "$INSTDIR\Qt5Network.dll"
 	Delete "$INSTDIR\Qt5OpenGL.dll"
-	Delete "$INSTDIR\Qt5PrintSupport.dll"
-	Delete "$INSTDIR\Qt5Qml.dll"
-	Delete "$INSTDIR\Qt5Quick.dll"
-	Delete "$INSTDIR\Qt5Sensors.dll"
-	Delete "$INSTDIR\Qt5Sql.dll"
-	Delete "$INSTDIR\Qt5V8.dll"
-	Delete "$INSTDIR\Qt5WebKit.dll"
-	Delete "$INSTDIR\Qt5WebKitWidgets.dll"
 	Delete "$INSTDIR\Qt5Widgets.dll"
 	Delete "$INSTDIR\Qt5Xml.dll"
 	Delete "$INSTDIR\bearer\qgenericbearer.dll"
