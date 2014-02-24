@@ -225,7 +225,7 @@ build_qomp ()
 	arch="any"
 	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev"
 	addit="#"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-webkit, libqt4-xml, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.'
 	docfiles="README
