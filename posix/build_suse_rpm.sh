@@ -75,21 +75,30 @@ qmake PREFIX=${PREFIX} qomp.pro
 mkdir -p %{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/share/applications
 mkdir -p %{buildroot}/usr/share/icons/hicolor/16x16/apps
-mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/24x24/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/32x32/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
-mkdir -p %{buildroot}/usr/share/qomp
+mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
 mkdir -p %{buildroot}/usr/share/qomp/plugins
 mkdir -p %{buildroot}/usr/share/qomp/translations
+
+if [ "%{_target_cpu}" = "x86_64" ]; then
+  mkdir -p %{buildroot}/usr/lib64
+  mv %{buildroot}/usr/lib/*.so.* %{buildroot}/usr/lib64/
+  rm -rf %{buildroot}/usr/lib
+else
+  mkdir -p %{buildroot}/usr/lib
+fi
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root, 0755)
+
 %{_bindir}/qomp
+%{_libdir}
 %{_datadir}/applications/
 %{_datadir}/icons/hicolor/16x16/apps/
 %{_datadir}/icons/hicolor/24x24/apps/
@@ -97,9 +106,8 @@ mkdir -p %{buildroot}/usr/share/qomp/translations
 %{_datadir}/icons/hicolor/48x48/apps/
 %{_datadir}/icons/hicolor/64x64/apps/
 %{_datadir}/icons/hicolor/128x128/apps/
-%{_datadir}/qomp
-%{_datadir}/qomp/plugins
 %{_datadir}/qomp/translations
+%{_datadir}/qomp/plugins
 END
 cp -f ${package_name} ${srcpath}
 cd ${homedir}/rpmbuild/SPECS
