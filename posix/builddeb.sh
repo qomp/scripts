@@ -215,7 +215,7 @@ build_qomp ()
 	check_dir ${builddir}
 	get_src
 	project="qomp"
-	versia=`grep APPLICATION_VERSION ${projectdir}/src/defines.h`
+	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/include/defines.h`
 	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
@@ -240,6 +240,7 @@ ${pprefix}/share/icons/hicolor/64x64/apps
 ${pprefix}/share/icons/hicolor/32x32/apps
 ${pprefix}/share/applications
 ${pprefix}/share/qomp
+${pprefix}/share/qomp/plugins
 ${pprefix}/share/qomp/translations"
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
