@@ -83,7 +83,7 @@ mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
 mkdir -p %{buildroot}/usr/share/qomp/plugins
 mkdir -p %{buildroot}/usr/share/qomp/translations
 
-if [ "%{_target_cpu}" = "x86_64" ]; then
+if [ "%{_target_cpu}" = "x86_64" ] && [ -d "/usr/lib64" ]; then
   mkdir -p %{buildroot}/usr/lib64
   mv %{buildroot}/usr/lib/*.so.* %{buildroot}/usr/lib64/
   rm -rf %{buildroot}/usr/lib
