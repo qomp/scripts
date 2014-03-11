@@ -31,7 +31,7 @@ else
 	git pull
 fi
 cd ${homedir}
-defines=${svndir}/src/defines.h
+defines=${svndir}/libqomp/defines.h
 ver_s=`grep APPLICATION_VERSION $defines`
 ver=`echo $ver_s | cut -d '"' -f 2 | sed "s/\s/_/"`
 package_name=${progname}-${ver}.tar.gz
@@ -81,6 +81,7 @@ mkdir -p %{buildroot}/usr/share/icons/hicolor/32x32/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
 mkdir -p %{buildroot}/usr/share/qomp
+mkdir -p %{buildroot}/usr/share/qomp/plugins
 mkdir -p %{buildroot}/usr/share/qomp/translations
 
 %clean
@@ -97,6 +98,7 @@ mkdir -p %{buildroot}/usr/share/qomp/translations
 %{_datadir}/icons/hicolor/64x64/apps/
 %{_datadir}/icons/hicolor/128x128/apps/
 %{_datadir}/qomp
+%{_datadir}/qomp/plugins
 %{_datadir}/qomp/translations
 END
 cp -f ${package_name} ${srcpath}
