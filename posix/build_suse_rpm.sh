@@ -31,7 +31,7 @@ else
 	git pull
 fi
 cd ${homedir}
-defines=${svndir}/libqomp/defines.h
+defines=${svndir}/libqomp/include/defines.h
 ver_s=`grep APPLICATION_VERSION $defines`
 ver=`echo $ver_s | cut -d '"' -f 2 | sed "s/\s/_/"`
 package_name=${progname}-${ver}.tar.gz
