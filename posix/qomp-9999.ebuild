@@ -3,7 +3,7 @@
 
 EAPI=5
 
-inherit qt4-r2 git-r3
+inherit cmake-utils git-r3
 
 IUSE="
 	qtphonon
@@ -44,11 +44,7 @@ LICENSE="GPL-3"
 
 PATCH1="${FILESDIR}/qtphonon-patch.patch"
 
-qt4-r2_src_configure() {
-	eqmake4 ${WORKDIR}/${P}/qomp.pro PREFIX=/usr || die "qmake ${WORKDIR}/${P}/qomp.pro failed"
-}
-
-qt4-r2_src_prepare() {
+src_prepare() {
 	if use qtphonon; then
 		cd $${WORKDIR}/${P}
 		#patch must be in files dir
