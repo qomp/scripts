@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 0.4 beta"
+!define APPNAMEANDVERSION "qomp 0.5 beta"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-0.4-beta-win32.exe"
+OutFile "qomp-0.5-beta-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -51,6 +51,7 @@ Section "qomp" Section1
 	File "qomp\libwinpthread-1.dll"
 	File "qomp\LICENSE.txt"
 	File "qomp\qomp.exe"
+	File "qomp\qomp.dll"
 	File "qomp\Qt5Core.dll"
 	File "qomp\Qt5Gui.dll"
 	File "qomp\Qt5Multimedia.dll"
@@ -83,6 +84,14 @@ Section "qomp" Section1
 	File "qomp\translations\qtxmlpatterns_ru.qm"
 	File "qomp\translations\qt_help_ru.qm"
 	File "qomp\translations\qt_ru.qm"
+	SetOutPath "$INSTDIR\plugins\"
+	File "qomp\plugins\filesystemplugin.dll"
+	File "qomp\plugins\lastfmplugin.dll"
+	File "qomp\plugins\myzukaruplugin.dll"
+	File "qomp\plugins\prostopleerplugin.dll"
+	File "qomp\plugins\tunetofileplugin.dll"
+	File "qomp\plugins\urlplugin.dll"
+	File "qomp\plugins\yandexmusicplugin.dll"
 	
 	SetShellVarContext all
 	CreateShortCut "$DESKTOP\qomp.lnk" "$INSTDIR\qomp.exe"
@@ -127,6 +136,7 @@ Section Uninstall
 	Delete "$INSTDIR\libwinpthread-1.dll"
 	Delete "$INSTDIR\LICENSE.txt"
 	Delete "$INSTDIR\qomp.exe"
+	Delete "$INSTDIR\qomp.dll"
 	Delete "$INSTDIR\Qt5Core.dll"
 	Delete "$INSTDIR\Qt5Gui.dll"
 	Delete "$INSTDIR\Qt5Multimedia.dll"
@@ -154,6 +164,13 @@ Section Uninstall
 	Delete "$INSTDIR\translations\qtxmlpatterns_ru.qm"
 	Delete "$INSTDIR\translations\qt_help_ru.qm"
 	Delete "$INSTDIR\translations\qt_ru.qm"
+	Delete "$INSTDIR\plugins\filesystemplugin.dll"
+	Delete "$INSTDIR\plugins\lastfmplugin.dll"
+	Delete "$INSTDIR\plugins\myzukaruplugin.dll"
+	Delete "$INSTDIR\plugins\prostopleerplugin.dll"
+	Delete "$INSTDIR\plugins\tunetofileplugin.dll"
+	Delete "$INSTDIR\plugins\urlplugin.dll"
+	Delete "$INSTDIR\plugins\yandexmusicplugin.dll"
 
 	; Remove remaining directories
 	RMDir "$INSTDIR\translations\"
@@ -161,6 +178,7 @@ Section Uninstall
 	RMDir "$INSTDIR\platforms\"
 	RMDir "$INSTDIR\mediaservice\"
 	RMDir "$INSTDIR\bearer\"
+	RMDir "$INSTDIR\plugins\"
 	RMDir "$INSTDIR\"
 	
 	; Delete Shortcuts
