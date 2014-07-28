@@ -1,0 +1,177 @@
+#!/bin/bash
+
+# QTDIR, pointing to a 32/64-bit x86 build of Qt.
+#   For example:
+#    QTDIR=/usr/local/Trolltech/Qt-4.8.2
+
+QTDIR="/usr"
+FRAMEWORKS_DIR="/Library/Frameworks"
+QT_TRANS_DIR="/Developer/Applications/Qt/translations"
+
+# OPTIONS / НАСТРОЙКИ
+
+# build and store directory / каталог для сорсов и сборки
+QOMP_DIR="${HOME}/qomp-build"
+
+QOMP_APP="qomp.app"
+
+# official repository
+GIT_REPO="https://code.google.com/p/qomp"
+
+export QMAKESPEC="macx-g++"
+export PATH="$QTDIR/bin:$PATH"
+
+#######################
+# FUNCTIONS / ФУНКЦИИ #
+#######################
+# Exit with error message
+die() { echo; echo " !!!ERROR: $@"; exit 1; }
+warning() { echo; echo " !!!WARNING: $@"; }
+log() { echo -e "\033[1m*** $@ \033[0m"; }
+
+check_env() {
+	log "Testing environment..."
+
+	MAKEOPT=${MAKEOPT:--j$((`sysctl -n hw.ncpu`+1)) -s}
+	STAT_USER_ID='stat -f %u'
+	STAT_USER_NAME='stat -f %Su'
+	SED_INPLACE_ARG=".bak"
+
+	v=`gmake --version 2>/dev/null`
+	v=`git --version 2>/dev/null` || \
+		die "You should install Git first. / Сначала установите Git (http://git-scm.com/download)"
+
+	# Make
+	if [ ! -f "${MAKE}" ]; then
+		MAKE=""
+		for gn in gmake make; do
+			[ -n "`$gn --version 2>/dev/null`" ] && { MAKE="$gn"; break; }
+		done
+		[ -z "${MAKE}" ] && die "You should install GNU Make first / "\
+			"Сначала установите GNU Make"
+	fi
+	log "\tFound make tool: ${MAKE}"
+
+	find_qt_util() {
+		local name=$1
+		result=""
+		for un in $QTDIR/bin/$name $QTDIR/bin/$name-qt4 $QTDIR/bin/qt4-${name} $QTDIR/bin/${name}4; do
+			[ -n "`$un -v 2>&1 |grep Qt`" ] && { result="$un"; break; }
+		done
+		if [ -z "${result}" ]; then
+			[ "$nonfatal" = 1 ] || die "You should install $name util as part of"\
+				"Qt framework / Сначала установите утилиту $name из Qt framework"
+			log "${name} Qt tool is not found. ignoring.."
+		else
+			log "\tFound ${name} Qt tool: ${result}"
+		fi
+	}
+
+	local result
+	# qmake
+	find_qt_util qmake; QMAKE="${result}"
+	nonfatal=1 find_qt_util lrelease; LRELEASE="${result}"
+	log "Environment is OK"
+}
+
+prepare_workspace() {
+	log "Init directories..."
+	if [ ! -d "${QOMP_DIR}" ]
+	then
+		mkdir "${QOMP_DIR}" || die "can't create work directory ${QOMP_DIR}"
+		fetch_sources
+	fi
+
+	rm -rf "${QOMP_DIR}"/build
+
+	[ -d "${QOMP_DIR}"/build ] && die "can't delete old build directory ${QOMP_DIR}/build"
+	mkdir "${QOMP_DIR}"/build || die "can't create build directory ${QOMP_DIR}/build"
+	log "\tCreated base directory structure"
+}
+
+fetch_sources() {
+	log "Fetch sources..."
+	cd "${QOMP_DIR}"
+	git clone ${GIT_REPO}
+	cd qomp
+	git submodule init
+	git submodule update
+
+	cd "${QOMP_DIR}"
+}
+
+prepare_sources() {
+	log "Exporting sources..."
+	cd "${QOMP_DIR}"/qomp
+	git pull
+	git submodule update
+
+	cd "${QOMP_DIR}"
+	cp -a "qomp/" "build/"	
+}
+
+src_compile() {
+	log "All ready. Now run make..."
+	cd "${QOMP_DIR}"/build
+	
+	$QMAKE	
+
+	$MAKE $MAKEOPT || die "make failed"
+}
+
+copy_resources() {	
+	cd "${QOMP_DIR}"/build/bin
+	plugins=`ls plugins | grep ".dylib"`
+
+	QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia"
+	QT_FRAMEWORK_VERSION=4
+
+	app_bundle_plugins_dir="${QOMP_APP}/Contents/Resources/plugins"
+	mkdir "$app_bundle_plugins_dir"
+	for p in ${plugins}; do
+		cp -f plugins/$p "$app_bundle_plugins_dir"/$p
+		for f in ${QT_FRAMEWORKS}; do
+			install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$app_bundle_plugins_dir/$p"
+		done
+	done
+
+	app_bundl_tr_dir="${QOMP_APP}/Contents/Translations"
+	tr_dir="${QOMP_DIR}/build/qomp.translations/translations"
+	mkdir "$app_bundl_tr_dir"
+	transl=`ls ${tr_dir} | grep ".qm"`
+	for t in $transl; do
+		cp -f ${tr_dir}/$t "$app_bundl_tr_dir/$t"
+		substr=`echo ${t} | cut -d'_' -f 2`
+		cp -f "${QT_TRANS_DIR}/qt_${substr}" "$app_bundl_tr_dir"
+	done
+
+	mkdir "${QOMP_APP}/Contents/Frameworks"
+	cp -f "./libqomp.1.0.0.dylib" "${QOMP_APP}/Contents/Frameworks/libqomp.1.dylib"
+	for f in ${QT_FRAMEWORKS}; do
+		install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$QOMP_APP/Contents/Frameworks/libqomp.1.dylib"
+	done
+}
+
+make_bundle() {
+	log "Making standalone bundle..."
+	cd ${QOMP_DIR}/build/bin
+	macdeployqt qomp.app -dmg
+}
+
+
+#############
+# Go Go Go! #
+#############
+
+starttime=`date "+Start time: %H:%M:%S"`
+check_env
+prepare_workspace
+prepare_sources
+src_compile
+
+copy_resources
+make_bundle
+
+finishtime=`date "+Finish time: %H:%M:%S"`
+echo $starttime
+echo $finishtime
