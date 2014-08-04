@@ -26,6 +26,7 @@ DEPEND="
 	qtphonon? ( dev-qt/qtphonon )
 	gstreamer? ( media-libs/phonon-gstreamer )
 	vlc? ( media-libs/phonon-vlc )
+	filesystemplugin? ( media-libs/taglib )
 "
 
 REQUIRED_USE="qtphonon? ( !gstreamer )"
