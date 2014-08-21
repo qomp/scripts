@@ -126,10 +126,22 @@ copy_resources() {
 	QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia"
 	QT_FRAMEWORK_VERSION=4
 
+	mkdir "${QOMP_APP}/Contents/Frameworks"
+	cp -a "${FRAMEWORKS_DIR}/tag.framework" "${QOMP_APP}/Contents/Frameworks"
+	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$QOMP_APP/Contents/MAcOS/qomp"
+
+	cp -f "./libqomp.1.0.0.dylib" "${QOMP_APP}/Contents/Frameworks/libqomp.1.dylib"
+	for f in ${QT_FRAMEWORKS}; do
+		install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$QOMP_APP/Contents/Frameworks/libqomp.1.dylib"
+	done
+	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$QOMP_APP/Contents/Frameworks/libqomp.1.dylib"
+		
+
 	app_bundle_plugins_dir="${QOMP_APP}/Contents/Resources/plugins"
 	mkdir "$app_bundle_plugins_dir"
 	for p in ${plugins}; do
 		cp -f plugins/$p "$app_bundle_plugins_dir"/$p
+		install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$app_bundle_plugins_dir/$p"
 		for f in ${QT_FRAMEWORKS}; do
 			install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$app_bundle_plugins_dir/$p"
 		done
@@ -144,18 +156,17 @@ copy_resources() {
 		substr=`echo ${t} | cut -d'_' -f 2`
 		cp -f "${QT_TRANS_DIR}/qt_${substr}" "$app_bundl_tr_dir"
 	done
-
-	mkdir "${QOMP_APP}/Contents/Frameworks"
-	cp -f "./libqomp.1.0.0.dylib" "${QOMP_APP}/Contents/Frameworks/libqomp.1.dylib"
-	for f in ${QT_FRAMEWORKS}; do
-		install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$QOMP_APP/Contents/Frameworks/libqomp.1.dylib"
-	done
 }
 
 make_bundle() {
 	log "Making standalone bundle..."
 	cd ${QOMP_DIR}/build/bin
 	macdeployqt qomp.app -dmg
+	regex='#define APPLICATION_VERSION "(.+)"$'
+	ver=`cat ${QOMP_DIR}/qomp/libqomp/include/defines.h | grep -E "$regex"`
+	[[ $ver =~ $regex ]]
+    		ver=`echo "${BASH_REMATCH[1]}" | tr " " "_"`
+	cp -f "qomp.dmg" "${QOMP_DIR}/qomp-${ver}.dmg"
 }
 
 
