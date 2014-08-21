@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 0.5 beta"
+!define APPNAMEANDVERSION "qomp 0.6 beta"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-0.5-beta-win32.exe"
+OutFile "qomp-0.6-beta-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -60,6 +60,10 @@ Section "qomp" Section1
 	File "qomp\Qt5OpenGL.dll"
 	File "qomp\Qt5Widgets.dll"
 	File "qomp\Qt5Xml.dll"
+	File "qomp\libtag.dll"
+	File "qomp\zlib1.dll"
+	SetOutPath "$INSTDIR\audio\"
+	File "qomp\audio\qtaudio_windows.dll"
 	SetOutPath "$INSTDIR\bearer\"
 	File "qomp\bearer\qgenericbearer.dll"
 	File "qomp\bearer\qnativewifibearer.dll"
@@ -67,8 +71,6 @@ Section "qomp" Section1
 	File "qomp\mediaservice\dsengine.dll"
 	File "qomp\mediaservice\qtmedia_audioengine.dll"
 	SetOutPath "$INSTDIR\platforms\"
-	File "qomp\platforms\qminimal.dll"
-	File "qomp\platforms\qoffscreen.dll"
 	File "qomp\platforms\qwindows.dll"
 	SetOutPath "$INSTDIR\playlistformats\"
 	File "qomp\playlistformats\qtmultimedia_m3u.dll"
@@ -145,12 +147,13 @@ Section Uninstall
 	Delete "$INSTDIR\Qt5OpenGL.dll"
 	Delete "$INSTDIR\Qt5Widgets.dll"
 	Delete "$INSTDIR\Qt5Xml.dll"
+	Delete "$INSTDIR\libtag.dll"
+	Delete "$INSTDIR\zlib1.dll"
+	Delete "$INSTDIR\audio\qtaudio_windows.dll"
 	Delete "$INSTDIR\bearer\qgenericbearer.dll"
 	Delete "$INSTDIR\bearer\qnativewifibearer.dll"
 	Delete "$INSTDIR\mediaservice\dsengine.dll"
 	Delete "$INSTDIR\mediaservice\qtmedia_audioengine.dll"
-	Delete "$INSTDIR\platforms\qminimal.dll"
-	Delete "$INSTDIR\platforms\qoffscreen.dll"
 	Delete "$INSTDIR\platforms\qwindows.dll"
 	Delete "$INSTDIR\playlistformats\qtmultimedia_m3u.dll"
 	Delete "$INSTDIR\translations\qmlviewer_ru.qm"
