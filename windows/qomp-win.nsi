@@ -41,9 +41,9 @@ Section "qomp" Section1
 
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR\"
-	File "qomp\icudt51.dll"
-	File "qomp\icuin51.dll"
-	File "qomp\icuuc51.dll"
+	File "qomp\icudt52.dll"
+	File "qomp\icuin52.dll"
+	File "qomp\icuuc52.dll"
 	File "qomp\libeay32.dll"
 	File "qomp\ssleay32.dll"
 	File "qomp\libgcc_s_dw2-1.dll"
@@ -128,9 +128,9 @@ Section Uninstall
 	Delete "$INSTDIR\uninstall.exe"
 
 	; Clean up qomp
-	Delete "$INSTDIR\icudt51.dll"
-	Delete "$INSTDIR\icuin51.dll"
-	Delete "$INSTDIR\icuuc51.dll"
+	Delete "$INSTDIR\icudt52.dll"
+	Delete "$INSTDIR\icuin52.dll"
+	Delete "$INSTDIR\icuuc52.dll"
 	Delete "$INSTDIR\libeay32.dll"
 	Delete "$INSTDIR\ssleay32.dll"
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
@@ -181,6 +181,7 @@ Section Uninstall
 	RMDir "$INSTDIR\platforms\"
 	RMDir "$INSTDIR\mediaservice\"
 	RMDir "$INSTDIR\bearer\"
+	RMDir "$INSTDIR\audio\"
 	RMDir "$INSTDIR\plugins\"
 	RMDir "$INSTDIR\"
 	
