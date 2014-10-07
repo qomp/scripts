@@ -16,7 +16,7 @@ QOMP_DIR="${HOME}/qomp-build"
 QOMP_APP="qomp.app"
 
 # official repository
-GIT_REPO="https://code.google.com/p/qomp"
+GIT_REPO="https://github.com/qomp/qomp.git"
 
 export QMAKESPEC="macx-g++"
 export PATH="$QTDIR/bin:$PATH"
