@@ -20,7 +20,7 @@ srcpath=${homedir}/rpmbuild/SOURCES
 cd $homedir
 if [ ! -d "${svndir}" ]
 then
-	git clone https://code.google.com/p/qomp/ ${svndir}
+	git clone https://github.com/qomp/qomp.git ${svndir}
 	cd ${svndir}
 	git submodule init
 	git submodule update

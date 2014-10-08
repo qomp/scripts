@@ -93,7 +93,7 @@ get_src ()
 	cd ${srcdir}
 	if [ ! -d "${projectdir}" ]
 	then
-		git clone https://code.google.com/p/qomp/ ${projectdir}
+		git clone https://github.com/qomp/qomp.git ${projectdir}
 		cd ${projectdir}
 		git submodule init
 		git submodule update
