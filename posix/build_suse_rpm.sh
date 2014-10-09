@@ -31,7 +31,7 @@ else
 	git pull
 fi
 cd ${homedir}
-defines=${svndir}/libqomp/include/defines.h
+defines=${svndir}/libqomp/src/defines.h
 ver_s=`grep APPLICATION_VERSION $defines`
 ver=`echo $ver_s | cut -d '"' -f 2 | sed "s/\s/_/"`
 package_name=${progname}-${ver}.tar.gz
@@ -65,7 +65,8 @@ Quick(Qt) Online Music Player
 %setup
 
 %build
-qmake PREFIX=${PREFIX} qomp.pro
+cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr .
+%{__make} %{?_smp_mflags}
 
 %install
 [ "%{buildroot}" != "/"] && rm -rf %{buildroot}

@@ -178,7 +178,7 @@ and is licensed under the GPL version 3, see above.
 "
 docs=${docfiles}
 
-rules_qt='#!/usr/bin/make -f
+rules_qt="#!/usr/bin/make -f
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
 # This file was originally written by Joey Hess and Craig Small.
@@ -191,13 +191,16 @@ rules_qt='#!/usr/bin/make -f
 config.status: configure
 	dh_testdir
 
+  
 include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/qmake.mk
+include /usr/share/cdbs/1/class/cmake.mk
 
 # Add here any variable or target overrides you need.
-QMAKE=qmake-qt4 PREFIX=/usr
+#QMAKE=qmake-qt4
+DEB_CMAKE_EXTRA_FLAGS += ${cmake_flags}
 CFLAGS=-O3
-CXXFLAGS=-O3'
+CXXFLAGS=-O3
+"
 
 	echo "${rules_qt}" > rules
 	echo "${changelog}" > changelog
@@ -215,15 +218,16 @@ build_qomp ()
 	check_dir ${builddir}
 	get_src
 	project="qomp"
-	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/include/defines.h`
+	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/src/defines.h`
 	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cp -rf ${projectdir}/* ${debdir}/
 	cd ${debdir}
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	section="sound"
 	arch="any"
-	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev"
+	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, pkg-config, cmake"
 	addit="#"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	description="Quick(Qt) Online Music Player"
