@@ -86,8 +86,6 @@ mkdir -p %{buildroot}/usr/share/qomp/translations
 
 if [ "%{_target_cpu}" = "x86_64" ] && [ -d "/usr/lib64" ]; then
   mkdir -p %{buildroot}/usr/lib64
-  mv %{buildroot}/usr/lib/*.so.* %{buildroot}/usr/lib64/
-  rm -rf %{buildroot}/usr/lib
 else
   mkdir -p %{buildroot}/usr/lib
 fi
