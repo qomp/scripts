@@ -65,7 +65,11 @@ Quick(Qt) Online Music Player
 %setup
 
 %build
+if [ "%{_target_cpu}" = "x86_64" ] && [ -d "/usr/lib64" ]; then
+cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DLIB_SUFFIX=64 .
+else
 cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr .
+fi
 %{__make} %{?_smp_mflags}
 
 %install
