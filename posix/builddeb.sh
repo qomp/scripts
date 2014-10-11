@@ -19,6 +19,7 @@ builddep=""
 docfiles=""
 dirs=""
 CWDIR=`pwd`
+build_count=1
 isloop=1
 
 if [ ! -z $USERNAME ]
@@ -115,7 +116,7 @@ build_deb ()
 #
 prepare_specs ()
 {
-changelog="${project} (${ver}-1) unstable; urgency=low
+changelog="${project} (${ver}-${build_count}) unstable; urgency=low
 
   * new upsream release
 
@@ -196,7 +197,6 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/cmake.mk
 
 # Add here any variable or target overrides you need.
-#QMAKE=qmake-qt4
 DEB_CMAKE_EXTRA_FLAGS += ${cmake_flags}
 CFLAGS=-O3
 CXXFLAGS=-O3
@@ -212,19 +212,9 @@ CXXFLAGS=-O3
 }
 #
 
-build_qomp ()
+set_vars ()
 {
-	clean_build ${builddir}
-	check_dir ${builddir}
-	get_src
 	project="qomp"
-	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/src/defines.h`
-	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
-	debdir=${builddir}/${project}-${ver}
-	check_dir ${debdir}
-	cp -rf ${projectdir}/* ${debdir}/
-	cd ${debdir}
-	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	section="sound"
 	arch="any"
 	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, pkg-config, cmake"
@@ -246,21 +236,62 @@ ${pprefix}/share/applications
 ${pprefix}/share/qomp
 ${pprefix}/share/qomp/plugins
 ${pprefix}/share/qomp/translations"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
+}
+
+build_qomp ()
+{
+	clean_build ${builddir}
+	check_dir ${builddir}
+	get_src
+	set_vars
+	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/src/defines.h`
+	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
+	debdir=${builddir}/${project}-${ver}
+	check_dir ${debdir}
+	cp -rf ${projectdir}/* ${debdir}/
+	cd ${debdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
 	prepare_specs
 	cd ${debdir}
-	qmake PREFIX=/usr qomp.pro
 	build_deb
 	check_dir ${exitdir}
 	cp -f ${builddir}/*.deb	${exitdir}/
 }
 
+build_qomp_qt5 ()
+{
+	clean_build ${builddir}
+	check_dir ${builddir}
+	get_src
+	set_vars
+	project="qomp-qt5"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, pkg-config, cmake"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
+	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/src/defines.h`
+	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
+	debdir=${builddir}/${project}-${ver}
+	check_dir ${debdir}
+	cp -rf ${projectdir}/* ${debdir}/
+	cd ${debdir}
+	check_dir ${debdir}/debian
+	cd ${debdir}/debian
+	prepare_specs
+	cd ${debdir}
+	build_deb
+	check_dir ${exitdir}
+	cp -f ${builddir}/*.deb	${exitdir}/
+}
+
+
 print_menu ()
 {
   local menu_text='Choose action TODO!
 [1] - Build qomp debian package
-[2] - Remove all sources
+[2] - Build qomp debian package with Qt5
+[3] - Remove all sources
 [0] - Exit'
   echo "${menu_text}"
 }
@@ -270,7 +301,8 @@ choose_action ()
 	read vibor
 	case ${vibor} in
 		"1" ) build_qomp;;
-		"2" ) rm_all;;
+		"2" ) build_qomp_qt5;;
+		"3" ) rm_all;;
 		"0" ) quit;;
 	esac
 }
