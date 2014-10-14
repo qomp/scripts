@@ -7,6 +7,7 @@
 QTDIR="/usr"
 FRAMEWORKS_DIR="/Library/Frameworks"
 QT_TRANS_DIR="/Developer/Applications/Qt/translations"
+QT_PLUGINS_DIR="/Developer/Applications/Qt/plugins"
 
 # OPTIONS / НАСТРОЙКИ
 
@@ -74,6 +75,16 @@ check_env() {
 	log "Environment is OK"
 }
 
+cleanup_framework() {
+	# remove dev stuff
+	rm -rf $1/Headers
+	rm -f $1/${2}_debug
+	rm -f $1/${2}_debug.prl
+	rm -rf $1/Versions/$3/Headers
+	rm -f $1/Versions/$3/${2}_debug
+	rm -f $1/Versions/$3/${2}_debug.prl
+}
+
 prepare_workspace() {
 	log "Init directories..."
 	if [ ! -d "${QOMP_DIR}" ]
@@ -123,21 +134,49 @@ copy_resources() {
 	cd "${QOMP_DIR}"/build/bin
 	plugins=`ls plugins | grep ".dylib"`
 
-	QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia"
+	QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui phonon QtOpenGL"
 	QT_FRAMEWORK_VERSION=4
+	QT_PLUGINS="phonon_backend/libphonon_qt7.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib"
 
-	mkdir "${QOMP_APP}/Contents/Frameworks"
-	cp -a "${FRAMEWORKS_DIR}/tag.framework" "${QOMP_APP}/Contents/Frameworks"
-	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$QOMP_APP/Contents/MAcOS/qomp"
+	contentsdir=${QOMP_APP}/Contents
+	mkdir "$contentsdir/Frameworks"
 
-	cp -f "./libqomp.1.0.0.dylib" "${QOMP_APP}/Contents/Frameworks/libqomp.1.dylib"
+#	for g in $QT_FRAMEWORKS; do
+#		install_name_tool -change ${FRAMEWORKS_DIR}/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g @executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g $contentsdir/MacOS/qomp
+#	done	
+
+#	for f in $QT_FRAMEWORKS; do
+#		cp -a ${FRAMEWORKS_DIR}/$f.framework $contentsdir/Frameworks
+#		cleanup_framework $contentsdir/Frameworks/$f.framework $f ${QT_FRAMEWORK_VERSION}
+
+#		install_name_tool -id @executable_path/../Frameworks/$f.framework/Versions/QT_FRAMEWORK_VERSION/$f $contentsdir/Frameworks/$f.framework/$f
+#		for g in $QT_FRAMEWORKS; do
+#			install_name_tool -change ${FRAMEWORKS_DIR}/$g.framework/Versions/QT_FRAMEWORK_VERSION/$g @executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g $contentsdir/Frameworks/$f.framework/$f
+#		done
+#	done
+
+#	for p in $QT_PLUGINS; do
+#		mkdir -p $contentsdir/Plugins/$(dirname $p);
+#		cp -a $QT_PLUGINS_DIR/$p $contentsdir/Plugins/$p
+#		for g in $QT_FRAMEWORKS; do
+#			install_name_tool -change ${FRAMEWORKS_DIR}/$g.framework/Versions/QT_FRAMEWORK_VERSION/$g @executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g $contentsdir/Plugins/$p
+#		done
+#	done
+
+	cp -a "${FRAMEWORKS_DIR}/tag.framework" "$contentsdir/Frameworks"
+	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$contentsdir/MAcOS/qomp"
+
+	cp -a "${FRAMEWORKS_DIR}/Growl.framework" "$contentsdir/Frameworks"
+	cleanup_framework "$contentsdir/Frameworks/Growl.framework" Growl A
+
+	cp -f "./libqomp.1.0.0.dylib" "$contentsdir/Frameworks/libqomp.1.dylib"
 	for f in ${QT_FRAMEWORKS}; do
-		install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$QOMP_APP/Contents/Frameworks/libqomp.1.dylib"
+		install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$contentsdir/Frameworks/libqomp.1.dylib"
 	done
-	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$QOMP_APP/Contents/Frameworks/libqomp.1.dylib"
+	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$contentsdir/Frameworks/libqomp.1.dylib"
 		
 
-	app_bundle_plugins_dir="${QOMP_APP}/Contents/Resources/plugins"
+	app_bundle_plugins_dir="$contentsdir/Resources/plugins"
 	mkdir "$app_bundle_plugins_dir"
 	for p in ${plugins}; do
 		cp -f plugins/$p "$app_bundle_plugins_dir"/$p
@@ -147,8 +186,8 @@ copy_resources() {
 		done
 	done
 
-	app_bundl_tr_dir="${QOMP_APP}/Contents/Translations"
-	tr_dir="${QOMP_DIR}/build/qomp.translations/translations"
+	app_bundl_tr_dir="$contentsdir/Translations"
+	tr_dir="${QOMP_DIR}/build/translations/translations"
 	mkdir "$app_bundl_tr_dir"
 	transl=`ls ${tr_dir} | grep ".qm"`
 	for t in $transl; do
@@ -160,13 +199,39 @@ copy_resources() {
 
 make_bundle() {
 	log "Making standalone bundle..."
+
+#	VOLUME_NAME="qomp"
+#	WC_DMG=wc.dmg
+#	WC_DIR=wc
+#	TEMPLATE_DMG=template.dmg
+	MASTER_DMG="qomp.dmg"
+
 	cd ${QOMP_DIR}/build/bin
-	macdeployqt qomp.app -dmg
+
+	# generate empty template
+#	mkdir template
+#	hdiutil create -size 60m "$TEMPLATE_DMG" -srcfolder template -format UDRW -volname "$VOLUME_NAME" -quiet
+#	rmdir template
+
+#	cp $TEMPLATE_DMG $WC_DMG
+
+#	mkdir -p $WC_DIR
+#	hdiutil attach "$WC_DMG" -noautoopen -quiet -mountpoint "$WC_DIR"
+#	cp -a $QOMP_APP $WC_DIR
+#	diskutil eject `diskutil list | grep "$VOLUME_NAME" | grep "Apple_HFS" | awk '{print $6}'`
+
+	rm -f $MASTER_DMG
+#	hdiutil convert "$WC_DMG" -quiet -format UDZO -imagekey zlib-level=9 -o $MASTER_DMG
+#	rm -rf $WC_DIR $WC_DMG
+#	hdiutil internet-enable -yes -quiet $MASTER_DMG || true
+
+
+	macdeployqt ${QOMP_APP} -dmg	
 	regex='#define APPLICATION_VERSION "(.+)"$'
-	ver=`cat ${QOMP_DIR}/qomp/libqomp/include/defines.h | grep -E "$regex"`
+	ver=`cat ${QOMP_DIR}/qomp/libqomp/src/defines.h | grep -E "$regex"`
 	[[ $ver =~ $regex ]]
     		ver=`echo "${BASH_REMATCH[1]}" | tr " " "_"`
-	cp -f "qomp.dmg" "${QOMP_DIR}/qomp-${ver}.dmg"
+	cp -f $MASTER_DMG "${QOMP_DIR}/qomp-${ver}.dmg"
 }
 
 
