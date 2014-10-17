@@ -1,13 +1,35 @@
 #!/bin/bash
 
-# QTDIR, pointing to a 32/64-bit x86 build of Qt.
-#   For example:
-#    QTDIR=/usr/local/Trolltech/Qt-4.8.2
 
-QTDIR="/usr"
-FRAMEWORKS_DIR="/Library/Frameworks"
-QT_TRANS_DIR="/Developer/Applications/Qt/translations"
-QT_PLUGINS_DIR="/Developer/Applications/Qt/plugins"
+#Use one of Qt settings sets
+
+# Qt5 Settings
+QTDIR="${HOME}/Qt5.3.2/5.3/clang_64"
+FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks"
+QT_FRAMEWORKS_DIR="${QTDIR}/lib"
+QT_FRAMEWORKS_PREFIX="${QT_FRAMEWORKS_DIR}/"
+QT_TRANS_DIR="${QTDIR}/translations"
+QT_PLUGINS_DIR="${QTDIR}/plugins"
+QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia QtWidgets QtConcurrent QtPrintSupport QtOpenGL"
+QT_FRAMEWORK_VERSION=5
+QT_PLUGINS="audio/libqtaudio_coreaudio.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib platforms/libqcocoa.dylib printsupport/libcocoaprintersupport.dylib"
+QT_PLUGINS="${QT_PLUGINS} mediaservice/libqtmedia_audioengine.dylib mediaservice/libqqt7engine.dylib"
+export QMAKESPEC="macx-clang"
+
+
+# Qt4 Settings
+#QTDIR="/usr"
+#FRAMEWORKS_DIR="/Library/Frameworks"
+#QT_FRAMEWORKS_DIR=${FRAMEWORKS_DIR}
+#QT_FRAMEWORKS_PREFIX=""
+#QT_TRANS_DIR="/Developer/Applications/Qt/translations"
+#QT_PLUGINS_DIR="/Developer/Applications/Qt/plugins"
+#QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui phonon QtOpenGL QtDBus"
+#QT_FRAMEWORK_VERSION=4
+#QT_PLUGINS="phonon_backend/libphonon_qt7.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib"
+#export QMAKESPEC="macx-g++"
+
+
 
 # OPTIONS / НАСТРОЙКИ
 
@@ -19,7 +41,7 @@ QOMP_APP="qomp.app"
 # official repository
 GIT_REPO="https://github.com/qomp/qomp.git"
 
-export QMAKESPEC="macx-g++"
+
 export PATH="$QTDIR/bin:$PATH"
 
 #######################
@@ -71,6 +93,7 @@ check_env() {
 	local result
 	# qmake
 	find_qt_util qmake; QMAKE="${result}"
+	find_qt_util macdeployqt; MACDEPLOYQT="${result}"
 	nonfatal=1 find_qt_util lrelease; LRELEASE="${result}"
 	log "Environment is OK"
 }
@@ -125,7 +148,7 @@ src_compile() {
 	log "All ready. Now run make..."
 	cd "${QOMP_DIR}"/build
 	
-	$QMAKE	
+	$QMAKE CONFIG+=release	
 
 	$MAKE $MAKEOPT || die "make failed"
 }
@@ -134,55 +157,69 @@ copy_resources() {
 	cd "${QOMP_DIR}"/build/bin
 	plugins=`ls plugins | grep ".dylib"`
 
-	QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui phonon QtOpenGL"
-	QT_FRAMEWORK_VERSION=4
-	QT_PLUGINS="phonon_backend/libphonon_qt7.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib"
+	TAG_VER="1.14.0"
+	MORE_FRAMEWORKS="Growl tag"
 
 	contentsdir=${QOMP_APP}/Contents
-	mkdir "$contentsdir/Frameworks"
+	mkdir "$contentsdir/Frameworks"	
 
-#	for g in $QT_FRAMEWORKS; do
-#		install_name_tool -change ${FRAMEWORKS_DIR}/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g @executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g $contentsdir/MacOS/qomp
-#	done	
+	for f in $QT_FRAMEWORKS; do
+		cp -a ${QT_FRAMEWORKS_DIR}/$f.framework $contentsdir/Frameworks
+		cleanup_framework $contentsdir/Frameworks/$f.framework $f ${QT_FRAMEWORK_VERSION}
 
-#	for f in $QT_FRAMEWORKS; do
-#		cp -a ${FRAMEWORKS_DIR}/$f.framework $contentsdir/Frameworks
-#		cleanup_framework $contentsdir/Frameworks/$f.framework $f ${QT_FRAMEWORK_VERSION}
+		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}$f.framework/Versions/${QT_FRAMEWORK_VERSION}/$f" "@executable_path/../Frameworks/$f.framework/Versions/${QT_FRAMEWORK_VERSION}/$f" "$contentsdir/MacOS/qomp"
 
-#		install_name_tool -id @executable_path/../Frameworks/$f.framework/Versions/QT_FRAMEWORK_VERSION/$f $contentsdir/Frameworks/$f.framework/$f
-#		for g in $QT_FRAMEWORKS; do
-#			install_name_tool -change ${FRAMEWORKS_DIR}/$g.framework/Versions/QT_FRAMEWORK_VERSION/$g @executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g $contentsdir/Frameworks/$f.framework/$f
-#		done
-#	done
+		install_name_tool -id @executable_path/../Frameworks/$f.framework/Versions/${QT_FRAMEWORK_VERSION}/$f $contentsdir/Frameworks/$f.framework/$f
+		for g in $QT_FRAMEWORKS; do
+			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "@executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "$contentsdir/Frameworks/$f.framework/$f"
+		done
+	done
 
-#	for p in $QT_PLUGINS; do
-#		mkdir -p $contentsdir/Plugins/$(dirname $p);
-#		cp -a $QT_PLUGINS_DIR/$p $contentsdir/Plugins/$p
-#		for g in $QT_FRAMEWORKS; do
-#			install_name_tool -change ${FRAMEWORKS_DIR}/$g.framework/Versions/QT_FRAMEWORK_VERSION/$g @executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g $contentsdir/Plugins/$p
-#		done
-#	done
+	for p in $QT_PLUGINS; do
+		mkdir -p $contentsdir/PlugIns/$(dirname $p);
+		cp -a $QT_PLUGINS_DIR/$p $contentsdir/PlugIns/$p
+		for g in $QT_FRAMEWORKS; do
+			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "@executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "$contentsdir/PlugIns/$p"
+		done
+	done
 
-	cp -a "${FRAMEWORKS_DIR}/tag.framework" "$contentsdir/Frameworks"
-	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$contentsdir/MAcOS/qomp"
-
-	cp -a "${FRAMEWORKS_DIR}/Growl.framework" "$contentsdir/Frameworks"
-	cleanup_framework "$contentsdir/Frameworks/Growl.framework" Growl A
+	qt_conf_file="$contentsdir/Resources/qt.conf"
+	touch ${qt_conf_file}
+	echo "[Paths]" >> ${qt_conf_file}
+	echo "Plugins = PlugIns" >> ${qt_conf_file}
 
 	cp -f "./libqomp.1.0.0.dylib" "$contentsdir/Frameworks/libqomp.1.dylib"
+	install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$contentsdir/MAcOS/qomp"
+	install_name_tool -id @executable_path/../Frameworks/libqomp.1.dylib $contentsdir/Frameworks/libqomp.1.dylib
 	for f in ${QT_FRAMEWORKS}; do
-		install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$contentsdir/Frameworks/libqomp.1.dylib"
+		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$contentsdir/Frameworks/libqomp.1.dylib"
 	done
-	install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$contentsdir/Frameworks/libqomp.1.dylib"
-		
 
+	for m in $MORE_FRAMEWORKS; do
+		cp -a "${FRAMEWORKS_DIR}/${m}.framework" "$contentsdir/Frameworks"
+#		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/MAcOS/qomp"
+#		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/Frameworks/libqomp.1.dylib"
+	done
+
+	cleanup_framework "$contentsdir/Frameworks/Growl.framework" Growl A 
+	cleanup_framework "$contentsdir/Frameworks/tag.framework" tag ${TAG_VER}
+	install_name_tool -id "@executable_path/../Frameworks/Growl.framework/Versions/A/Growl" "$contentsdir/Frameworks/Growl.framework/Growl"
+	install_name_tool -id "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$contentsdir/Frameworks/tag.framework/tag"
+		
 	app_bundle_plugins_dir="$contentsdir/Resources/plugins"
 	mkdir "$app_bundle_plugins_dir"
 	for p in ${plugins}; do
 		cp -f plugins/$p "$app_bundle_plugins_dir"/$p
-		install_name_tool -change "${FRAMEWORKS_DIR}/tag.framework" "@executable_path/../Frameworks/tag.framework" "$app_bundle_plugins_dir/$p"
+		install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$app_bundle_plugins_dir/$p"
+
+		for m in $MORE_FRAMEWORKS; do
+			install_name_tool -change "${FRAMEWORKS_DIR}/${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$app_bundle_plugins_dir/$p"
+		done
+		
+		install_name_tool -change "/usr/lib/tag.framework/Versions/${TAG_VER}/tag" "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$app_bundle_plugins_dir/$p"
+
 		for f in ${QT_FRAMEWORKS}; do
-			install_name_tool -change "${FRAMEWORKS_DIR}/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$app_bundle_plugins_dir/$p"
+			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$app_bundle_plugins_dir/$p"
 		done
 	done
 
@@ -193,40 +230,44 @@ copy_resources() {
 	for t in $transl; do
 		cp -f ${tr_dir}/$t "$app_bundl_tr_dir/$t"
 		substr=`echo ${t} | cut -d'_' -f 2`
-		cp -f "${QT_TRANS_DIR}/qt_${substr}" "$app_bundl_tr_dir"
+		qt_tr=`ls ${QT_TRANS_DIR} | grep "^qt.*_${substr}"`
+		log "Copy qt translations files for ${substr}:  $qt_tr..."
+		for qtrl in $qt_tr; do
+			cp -f "${QT_TRANS_DIR}/${qtrl}" "$app_bundl_tr_dir"
+		done
 	done
 }
 
 make_bundle() {
 	log "Making standalone bundle..."
 
-#	VOLUME_NAME="qomp"
-#	WC_DMG=wc.dmg
-#	WC_DIR=wc
-#	TEMPLATE_DMG=template.dmg
+	VOLUME_NAME="qomp"
+	WC_DMG=wc.dmg
+	WC_DIR=wc
+	TEMPLATE_DMG=template.dmg
 	MASTER_DMG="qomp.dmg"
 
 	cd ${QOMP_DIR}/build/bin
 
 	# generate empty template
-#	mkdir template
-#	hdiutil create -size 60m "$TEMPLATE_DMG" -srcfolder template -format UDRW -volname "$VOLUME_NAME" -quiet
-#	rmdir template
+	mkdir template
+	hdiutil create -size 60m "$TEMPLATE_DMG" -srcfolder template -format UDRW -volname "$VOLUME_NAME" -quiet
+	rmdir template
 
-#	cp $TEMPLATE_DMG $WC_DMG
+	cp $TEMPLATE_DMG $WC_DMG
 
-#	mkdir -p $WC_DIR
-#	hdiutil attach "$WC_DMG" -noautoopen -quiet -mountpoint "$WC_DIR"
-#	cp -a $QOMP_APP $WC_DIR
-#	diskutil eject `diskutil list | grep "$VOLUME_NAME" | grep "Apple_HFS" | awk '{print $6}'`
+	mkdir -p $WC_DIR
+	hdiutil attach "$WC_DMG" -noautoopen -quiet -mountpoint "$WC_DIR"
+	cp -a $QOMP_APP $WC_DIR
+	diskutil eject `diskutil list | grep "$VOLUME_NAME" | grep "Apple_HFS" | awk '{print $6}'`
 
 	rm -f $MASTER_DMG
-#	hdiutil convert "$WC_DMG" -quiet -format UDZO -imagekey zlib-level=9 -o $MASTER_DMG
-#	rm -rf $WC_DIR $WC_DMG
-#	hdiutil internet-enable -yes -quiet $MASTER_DMG || true
+	hdiutil convert "$WC_DMG" -quiet -format UDZO -imagekey zlib-level=9 -o $MASTER_DMG
+	rm -rf $WC_DIR $WC_DMG
+	hdiutil internet-enable -yes -quiet $MASTER_DMG || true
 
 
-	macdeployqt ${QOMP_APP} -dmg	
+#	$MACDEPLOYQT ${QOMP_APP} -dmg	
 	regex='#define APPLICATION_VERSION "(.+)"$'
 	ver=`cat ${QOMP_DIR}/qomp/libqomp/src/defines.h | grep -E "$regex"`
 	[[ $ver =~ $regex ]]
