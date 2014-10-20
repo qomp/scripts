@@ -198,8 +198,8 @@ include /usr/share/cdbs/1/class/cmake.mk
 
 # Add here any variable or target overrides you need.
 DEB_CMAKE_EXTRA_FLAGS += ${cmake_flags}
-CFLAGS=-O3
-CXXFLAGS=-O3
+CFLAGS=-O2 -pthread -fPIC
+CXXFLAGS=-O2 -pthread -fPIC
 "
 
 	echo "${rules_qt}" > rules
@@ -266,7 +266,7 @@ build_qomp_qt5 ()
 	check_dir ${builddir}
 	get_src
 	set_vars
-	project="qomp-qt5"
+	project="qomp"
 	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, pkg-config, cmake"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
@@ -314,4 +314,3 @@ do
   choose_action
 done
 exit 0
-
