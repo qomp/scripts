@@ -1,11 +1,11 @@
 #!/bin/bash
 
-
 #Use one of Qt settings sets
 
 # Qt5 Settings
+MAC_SDK_VER=10.9
 QTDIR="${HOME}/Qt5.3.2/5.3/clang_64"
-FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks"
+FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
 QT_FRAMEWORKS_PREFIX="${QT_FRAMEWORKS_DIR}/"
 QT_TRANS_DIR="${QTDIR}/translations"
@@ -37,6 +37,11 @@ export QMAKESPEC="macx-clang"
 QOMP_DIR="${HOME}/qomp-build"
 
 QOMP_APP="qomp.app"
+
+GROWL_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSNWhuOW1rbV9WYmc"
+GROWL_FILE="Growl-2.0.1"
+TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSUUxWWHBTWGstUEU"
+TAG_FILE="taglib-1.9.1"
 
 # official repository
 GIT_REPO="https://github.com/qomp/qomp.git"
@@ -121,6 +126,29 @@ prepare_workspace() {
 	[ -d "${QOMP_DIR}"/build ] && die "can't delete old build directory ${QOMP_DIR}/build"
 	mkdir "${QOMP_DIR}"/build || die "can't create build directory ${QOMP_DIR}/build"
 	log "\tCreated base directory structure"
+
+	cd "${QOMP_DIR}"
+	get_framework $GROWL_URL $GROWL_FILE $FRAMEWORKS_DIR Growl.framework
+	get_framework $TAG_URL $TAG_FILE $FRAMEWORKS_DIR tag.framework
+}
+
+get_framework() {
+	get_url=$1
+	file_name=$2
+	des_path=$3
+	des_file=$4
+	
+
+	if [ ! -f $file_name.tar.bz2 ]; then
+		log "Downloading $file_name"
+		curl -L -o $file_name.tar.bz2 $get_url || die "can't download url $get_url"
+		tar jxvf $file_name.tar.bz2 || die "can't extract file $file_name"
+	fi
+
+	if [ ! -d $des_path/$des_file ]; then
+		echo "We need admin password for copying $file_name framework"
+		sudo cp -a $des_file $des_path
+	fi
 }
 
 fetch_sources() {
@@ -147,6 +175,9 @@ prepare_sources() {
 src_compile() {
 	log "All ready. Now run make..."
 	cd "${QOMP_DIR}"/build
+	if [ ! -z "${MAC_SDK_VER}" ]; then
+		echo "QMAKE_MAC_SDK = macosx${MAC_SDK_VER}" >> conf.pri
+	fi
 	
 	$QMAKE CONFIG+=release	
 
