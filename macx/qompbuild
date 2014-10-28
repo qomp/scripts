@@ -3,7 +3,7 @@
 #Use one of Qt settings sets
 
 # Qt5 Settings
-MAC_SDK_VER=10.9
+MAC_SDK_VER=10.8
 QTDIR="${HOME}/Qt5.3.2/5.3/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
@@ -40,7 +40,7 @@ QOMP_APP="qomp.app"
 
 GROWL_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSNWhuOW1rbV9WYmc"
 GROWL_FILE="Growl-2.0.1"
-TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSUUxWWHBTWGstUEU"
+TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSRzkxSjJsRWVDRjg"
 TAG_FILE="taglib-1.9.1"
 
 # official repository
@@ -228,14 +228,14 @@ copy_resources() {
 
 	for m in $MORE_FRAMEWORKS; do
 		cp -a "${FRAMEWORKS_DIR}/${m}.framework" "$contentsdir/Frameworks"
-#		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/MAcOS/qomp"
+#		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/MacOS/qomp"
 #		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/Frameworks/libqomp.1.dylib"
 	done
 
 	cleanup_framework "$contentsdir/Frameworks/Growl.framework" Growl A 
 	cleanup_framework "$contentsdir/Frameworks/tag.framework" tag ${TAG_VER}
-	install_name_tool -id "@executable_path/../Frameworks/Growl.framework/Versions/A/Growl" "$contentsdir/Frameworks/Growl.framework/Growl"
-	install_name_tool -id "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$contentsdir/Frameworks/tag.framework/tag"
+#	install_name_tool -id "@executable_path/../Frameworks/Growl.framework/Versions/A/Growl" "$contentsdir/Frameworks/Growl.framework/Growl"
+#	install_name_tool -id "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$contentsdir/Frameworks/tag.framework/tag"
 		
 	app_bundle_plugins_dir="$contentsdir/Resources/plugins"
 	mkdir "$app_bundle_plugins_dir"
@@ -243,11 +243,11 @@ copy_resources() {
 		cp -f plugins/$p "$app_bundle_plugins_dir"/$p
 		install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$app_bundle_plugins_dir/$p"
 
-		for m in $MORE_FRAMEWORKS; do
-			install_name_tool -change "${FRAMEWORKS_DIR}/${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$app_bundle_plugins_dir/$p"
-		done
+#		for m in $MORE_FRAMEWORKS; do
+#			install_name_tool -change "${FRAMEWORKS_DIR}/${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$app_bundle_plugins_dir/$p"
+#		done
 		
-		install_name_tool -change "/usr/lib/tag.framework/Versions/${TAG_VER}/tag" "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$app_bundle_plugins_dir/$p"
+#		install_name_tool -change "/usr/lib/tag.framework/Versions/${TAG_VER}/tag" "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$app_bundle_plugins_dir/$p"
 
 		for f in ${QT_FRAMEWORKS}; do
 			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$app_bundle_plugins_dir/$p"
