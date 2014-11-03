@@ -26,19 +26,19 @@ then
 	git submodule update
 else
 	cd ${svndir}
+	git reset --hard
 	git pull
 	git submodule update
 	git pull
 fi
 cd ${homedir}
 defines=${svndir}/libqomp/src/defines.h
-ver_s=`grep APPLICATION_VERSION $defines`
-ver=`echo $ver_s | cut -d '"' -f 2 | sed "s/\s/_/"`
+ver=$(grep -e '[^_]APPLICATION_VERSION' $defines | cut -d '"' -f 2 | sed "s/\s/_/")
 package_name=${progname}-${ver}.tar.gz
 tmpbuilddir=${rpmbuild_dir}/${progname}-${ver}
 if [ -d "${tmpbuilddir}" ]
 then
-	rm -r -f ${tmpbuilddir}
+	rm -rf ${tmpbuilddir}
 fi
 mkdir -p ${tmpbuilddir}
 cp -rf ${svndir}/* ${tmpbuilddir}/
@@ -51,7 +51,7 @@ Version: $ver
 Release: 1
 License: GPL-2
 Group: Applications/Sound
-URL: https://code.google.com/p/qomp/
+URL: http://qomp.sourceforge.net/
 Source0: $package_name
 BuildRequires: gcc-c++, zlib-devel, phonon-devel
 %{!?_without_freedesktop:BuildRequires: desktop-file-utils}
@@ -65,11 +65,7 @@ Quick(Qt) Online Music Player
 %setup
 
 %build
-if [ "%{_target_cpu}" = "x86_64" ] && [ -d "/usr/lib64" ]; then
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DLIB_SUFFIX=64 .
-else
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr .
-fi
+qmake PREFIX=${PREFIX}
 %{__make} %{?_smp_mflags}
 
 %install
@@ -85,8 +81,8 @@ mkdir -p %{buildroot}/usr/share/icons/hicolor/32x32/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
-mkdir -p %{buildroot}/usr/share/qomp/plugins
-mkdir -p %{buildroot}/usr/share/qomp/translations
+mkdir -p %{buildroot}/usr/share/$progname/plugins
+mkdir -p %{buildroot}/usr/share/$progname/translations
 
 if [ "%{_target_cpu}" = "x86_64" ] && [ -d "/usr/lib64" ]; then
   mkdir -p %{buildroot}/usr/lib64
@@ -100,7 +96,7 @@ fi
 %files
 %defattr(-, root, root, 0755)
 
-%{_bindir}/qomp
+%{_bindir}/$progname
 %{_libdir}
 %{_datadir}/applications/
 %{_datadir}/icons/hicolor/16x16/apps/
@@ -109,8 +105,8 @@ fi
 %{_datadir}/icons/hicolor/48x48/apps/
 %{_datadir}/icons/hicolor/64x64/apps/
 %{_datadir}/icons/hicolor/128x128/apps/
-%{_datadir}/qomp/translations
-%{_datadir}/qomp/plugins
+%{_datadir}/$progname/translations
+%{_datadir}/$progname/plugins
 END
 cp -f ${package_name} ${srcpath}
 cd ${homedir}/rpmbuild/SPECS

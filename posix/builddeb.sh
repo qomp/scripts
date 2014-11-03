@@ -4,13 +4,19 @@ srcdir=${homedir}/build
 projectdir=${srcdir}/qomp
 builddir=${srcdir}/tmpbuild
 exitdir=${srcdir}/debians
-data=`LANG=en date +'%a, %d %b %Y %T %z'`
-year=`date +'%Y'`
+data=$(LANG=en date +'%a, %d %b %Y %T %z')
+if [ "$(lsb_release -is)" == "Ubuntu" ]; then
+	oscodename=$(lsb_release -cs)
+else
+	oscodename="unstable"
+fi
+year=$(date +'%Y')
 PREFIX=/usr
+qomphomepage=http://qomp.sourceforge.net/
 pprefix="usr"
-project=""
-section=""
-arch="all"
+project="qomp"
+section="sound"
+arch="any"
 depends=""
 description=""
 descriptionlong=""
@@ -18,9 +24,16 @@ addit=""
 builddep=""
 docfiles=""
 dirs=""
-CWDIR=`pwd`
+CWDIR=$(pwd)
 build_count=1
 isloop=1
+
+#COLORS
+pink="\x1B[01;91m"
+green="\e[0;32m"
+blue="\x1B[01;94m"
+nocolor="\x1B[0m"
+#
 
 if [ ! -z $USERNAME ]
 then
@@ -60,7 +73,7 @@ check_dir ()
 		if [ ! -d "$1" ]
 		then
 			tmpdir=$1			
-			echo "making directory $tmpdir..."
+			echo -e "${blue}making directory${nocolor} ${pink}$tmpdir...${nocolor}"
 			cd ${srcdir}
 			mkdir -p "$tmpdir"
 		fi
@@ -100,6 +113,7 @@ get_src ()
 		git submodule update
 	else
 		cd ${projectdir}
+		git reset --hard
 		git pull
 		git submodule update
 		git pull
@@ -116,9 +130,9 @@ build_deb ()
 #
 prepare_specs ()
 {
-changelog="${project} (${ver}-${build_count}) unstable; urgency=low
+changelog="${project} (${ver}-${build_count}) ${oscodename}; urgency=low
 
-  * new upsream release
+${changelogtext}
 
  -- ${username} <thetvg@gmail.com>  ${data}"
 
@@ -129,7 +143,7 @@ Priority: extra
 Maintainer: ${Maintainer}
 Build-Depends: ${builddep}
 Standards-Version: 3.8.1
-Homepage: https://code.google.com/p/qomp/
+Homepage: ${qomphomepage}
 
 Package: ${project}
 Architecture: ${arch}
@@ -144,7 +158,7 @@ copyright="This package was debianized by:
 
 It was downloaded from:
 
-    https://code.google.com/p/qomp/
+    ${qomphomepage}
 
 Upstream Author(s):
 
@@ -198,8 +212,8 @@ include /usr/share/cdbs/1/class/cmake.mk
 
 # Add here any variable or target overrides you need.
 DEB_CMAKE_EXTRA_FLAGS += ${cmake_flags}
-CFLAGS=-O2 -pthread -fPIC
-CXXFLAGS=-O2 -pthread -fPIC
+CFLAGS=-O2 -pthread
+CXXFLAGS=-O2 -pthread
 "
 
 	echo "${rules_qt}" > rules
@@ -214,10 +228,7 @@ CXXFLAGS=-O2 -pthread -fPIC
 
 set_vars ()
 {
-	project="qomp"
-	section="sound"
-	arch="any"
-	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libqjson-dev, pkg-config, cmake"
 	addit="#"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	description="Quick(Qt) Online Music Player"
@@ -239,14 +250,27 @@ ${pprefix}/share/qomp/translations"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 }
 
+get_changelog ()
+{
+	chlfile=${projectdir}/Changelog.txt
+	startlog=$(cat ${chlfile} | sed -n '/[0-9]\{4\}$/{n;p;q;}' | sed 's/[[\.*^$/]/\\&/g')
+	endlog=$(cat ${chlfile} | sed -n '/^$/{g;1!p;q;};h' | sed 's/[[\.*^$/]/\\&/g')
+	changelogtext=$(cat ${chlfile} | sed -n "/${startlog}/,/${endlog}/p" | sed -n 's/^\s*/  /p')
+}
+
+get_version()
+{
+	ver=$(sed -n '/[^_]APPLICATION_VERSION/p' ${projectdir}/libqomp/src/defines.h | cut -d '"' -f 2 | sed "s/\s/-/")
+}
+
 build_qomp ()
 {
 	clean_build ${builddir}
 	check_dir ${builddir}
 	get_src
 	set_vars
-	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/src/defines.h`
-	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
+	get_version
+	get_changelog
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cp -rf ${projectdir}/* ${debdir}/
@@ -267,11 +291,11 @@ build_qomp_qt5 ()
 	get_src
 	set_vars
 	project="qomp"
-	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, libtag1-dev, pkg-config, cmake"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
-	versia=`grep APPLICATION_VERSION ${projectdir}/libqomp/src/defines.h`
-	ver=`echo $versia | cut -d '"' -f 2 | sed "s/\s/-/"`
+	get_version
+	get_changelog
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cp -rf ${projectdir}/* ${debdir}/
@@ -285,15 +309,26 @@ build_qomp_qt5 ()
 	cp -f ${builddir}/*.deb	${exitdir}/
 }
 
+build_i386 ()
+{
+	get_version
+	targetarch=i386
+	nameprefix=${project}_${ver}-${build_count}
+	dscfile=${builddir}/${nameprefix}.dsc
+	srcfile=${builddir}/${nameprefix}.tar.gz
+	if [ -f "${dscfile}" ] && [ -f "${srcfile}" ]; then
+		sudo DIST=${oscodename} ARCH=${targetarch} cowbuilder --build ${dscfile} --basepath=/var/cache/pbuilder/${oscodename}-${targetarch}
+		cp -f /var/cache/pbuilder/${oscodename}-${targetarch}/result/${nameprefix}_${targetarch}.deb ${exitdir}/
+	fi
+}
 
 print_menu ()
 {
-  local menu_text='Choose action TODO!
-[1] - Build qomp debian package
-[2] - Build qomp debian package with Qt5
-[3] - Remove all sources
-[0] - Exit'
-  echo "${menu_text}"
+	echo -e "${blue}Choose action TODO!${nocolor}
+${pink}[1]${nocolor} - Build qomp debian package
+${pink}[2]${nocolor} - Build qomp debian package with Qt5
+${pink}[3]${nocolor} - Remove all sources
+${pink}[0]${nocolor} - Exit"
 }
 
 choose_action ()
@@ -302,6 +337,7 @@ choose_action ()
 	case ${vibor} in
 		"1" ) build_qomp;;
 		"2" ) build_qomp_qt5;;
+		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
 		"3" ) rm_all;;
 		"0" ) quit;;
 	esac
@@ -310,7 +346,7 @@ choose_action ()
 clear
 while [ ${isloop} = 1 ]
 do
-  print_menu
-  choose_action
+	print_menu
+	choose_action
 done
 exit 0
