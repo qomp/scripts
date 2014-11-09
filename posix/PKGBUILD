@@ -4,7 +4,7 @@ pkgver=0.7.5
 pkgrel=1
 pkgdesc="Quick(Qt) Online Music Player"
 arch=('i686' 'x86_64')
-url="http://sourceforge.net/projects/qscreenshot/"
+url="http://qomp.sourceforge.net/"
 license=('GPL2')
 depends=( 'taglib' 'qt5-base' 'qt5-tools' 'qt5-multimedia'
 'qt5-xmlpatterns' 'gstreamer0.10-bad-plugins'
@@ -22,7 +22,7 @@ pkgver() {
 
 _gitroot=https://github.com/qomp/
 _gitname=qomp
-_plugins="filesystemplugin;urlplugin;prostopleerplugin;myzukaruplugin;yandexmusicplugin;lastfmplugin;tunetofileplugin;mprisplugin"
+_plugins="filesystemplugin;urlplugin;prostopleerplugin;myzukaruplugin;yandexmusicplugin;lastfmplugin;tunetofileplugin;mprisplugin;notificationsplugin"
 build() {
   cd "$srcdir"
   msg "Connecting to GIT server...."
