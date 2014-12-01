@@ -68,13 +68,11 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 LICENSE="GPL-3"
 
-#https://raw.githubusercontent.com/qomp/scripts/master/posix/qtphonon-patch.patch
-PATCH1="${FILESDIR}/qtphonon-patch.patch"
-
 src_configure() {
 	if use qtphonon; then
-		cd $${WORKDIR}/${P}
-		epatch ${PATCH1} || die "patching with ${PATCH1} failed"
+		#cd $${WORKDIR}/${P}
+#https://raw.githubusercontent.com/qomp/scripts/master/posix/qtphonon-patch.patch
+		epatch ${FILESDIR}/qtphonon-patch.patch
 	fi
 	use filesystemplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};filesystemplugin"
 	use urlplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};urlplugin"
