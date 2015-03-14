@@ -220,7 +220,7 @@ copy_resources() {
 	echo "Plugins = PlugIns" >> ${qt_conf_file}
 
 	cp -f "./libqomp.1.0.0.dylib" "$contentsdir/Frameworks/libqomp.1.dylib"
-	install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$contentsdir/MAcOS/qomp"
+	install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$contentsdir/MacOS/qomp"
 	install_name_tool -id @executable_path/../Frameworks/libqomp.1.dylib $contentsdir/Frameworks/libqomp.1.dylib
 	for f in ${QT_FRAMEWORKS}; do
 		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$contentsdir/Frameworks/libqomp.1.dylib"

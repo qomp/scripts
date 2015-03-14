@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 0.7.1 beta"
+!define APPNAMEANDVERSION "qomp 0.8 beta"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-0.7.1-beta-win32.exe"
+OutFile "qomp-0.8-beta-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -83,6 +83,7 @@ Section "qomp" Section1
 	File "qomp\translations\qtdeclarative_ru.qm"
 	File "qomp\translations\qtmultimedia_ru.qm"
 	File "qomp\translations\qtquick1_ru.qm"
+	File "qomp\translations\qtquickcontrols_ru.qm"
 	File "qomp\translations\qtscript_ru.qm"
 	File "qomp\translations\qtxmlpatterns_ru.qm"
 	File "qomp\translations\qt_help_ru.qm"
@@ -163,6 +164,7 @@ Section Uninstall
 	Delete "$INSTDIR\translations\qtdeclarative_ru.qm"
 	Delete "$INSTDIR\translations\qtmultimedia_ru.qm"
 	Delete "$INSTDIR\translations\qtquick1_ru.qm"
+	Delete "$INSTDIR\translations\qtquickcontrols_ru.qm"
 	Delete "$INSTDIR\translations\qtscript_ru.qm"
 	Delete "$INSTDIR\translations\qtxmlpatterns_ru.qm"
 	Delete "$INSTDIR\translations\qt_help_ru.qm"
