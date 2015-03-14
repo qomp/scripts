@@ -4,7 +4,7 @@
 
 # Qt5 Settings
 MAC_SDK_VER=10.8
-QTDIR="${HOME}/Qt5.3.2/5.3/clang_64"
+QTDIR="${HOME}/Qt5.4.1/5.4/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
 QT_FRAMEWORKS_PREFIX="${QT_FRAMEWORKS_DIR}/"
@@ -13,7 +13,7 @@ QT_PLUGINS_DIR="${QTDIR}/plugins"
 QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia QtMultimediaWidgets QtWidgets QtConcurrent QtPrintSupport QtOpenGL"
 QT_FRAMEWORK_VERSION=5
 QT_PLUGINS="audio/libqtaudio_coreaudio.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib platforms/libqcocoa.dylib printsupport/libcocoaprintersupport.dylib"
-QT_PLUGINS="${QT_PLUGINS} mediaservice/libqtmedia_audioengine.dylib mediaservice/libqqt7engine.dylib"
+QT_PLUGINS="${QT_PLUGINS} mediaservice/libqtmedia_audioengine.dylib mediaservice/libqavfmediaplayer.dylib"
 export QMAKESPEC="macx-clang"
 
 
@@ -302,8 +302,8 @@ make_bundle() {
 	regex='#define APPLICATION_VERSION "(.+)"$'
 	ver=`cat ${QOMP_DIR}/qomp/libqomp/src/defines.h | grep -E "$regex"`
 	[[ $ver =~ $regex ]]
-    		ver=`echo "${BASH_REMATCH[1]}" | tr " " "_"`
-	cp -f $MASTER_DMG "${QOMP_DIR}/qomp-${ver}.dmg"
+    		ver=`echo "${BASH_REMATCH[1]}" | tr " " "-"`
+	cp -f $MASTER_DMG "${QOMP_DIR}/qomp-${ver}-mac.dmg"
 }
 
 
