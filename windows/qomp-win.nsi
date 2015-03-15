@@ -44,9 +44,9 @@ Section "qomp" Section1
 
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR\"
-	File "qomp\icudt52.dll"
-	File "qomp\icuin52.dll"
-	File "qomp\icuuc52.dll"
+	File "qomp\icudt53.dll"
+	File "qomp\icuin53.dll"
+	File "qomp\icuuc53.dll"
 	File "qomp\libeay32.dll"
 	File "qomp\ssleay32.dll"
 	File "qomp\libgcc_s_dw2-1.dll"
@@ -97,6 +97,17 @@ Section "qomp" Section1
 	File "qomp\plugins\tunetofileplugin.dll"
 	File "qomp\plugins\urlplugin.dll"
 	File "qomp\plugins\yandexmusicplugin.dll"
+	SetOutPath "$INSTDIR\codecs\"
+	File "qomp\codecs\avcodec-lav-54.dll"
+	File "qomp\codecs\avformat-lav-54.dll"
+	File "qomp\codecs\avutil-lav-51.dll"
+	File "qomp\codecs\install_all.bat"
+	File "qomp\codecs\LAVAudio.ax"
+	File "qomp\codecs\LAVSplitter.ax"
+	File "qomp\codecs\libbluray.dll"
+	File "qomp\codecs\uninstall_all.bat"
+	
+	ExecWait "$INSTDIR\codecs\install_all.bat"
 	
 	SetShellVarContext all
 	CreateShortCut "$DESKTOP\qomp.lnk" "$INSTDIR\qomp.exe"
@@ -130,10 +141,12 @@ Section Uninstall
 	; Delete self
 	Delete "$INSTDIR\uninstall.exe"
 
+	ExecWait "$INSTDIR\codecs\uninstall_all.bat"
+	
 	; Clean up qomp
-	Delete "$INSTDIR\icudt52.dll"
-	Delete "$INSTDIR\icuin52.dll"
-	Delete "$INSTDIR\icuuc52.dll"
+	Delete "$INSTDIR\icudt53.dll"
+	Delete "$INSTDIR\icuin53.dll"
+	Delete "$INSTDIR\icuuc53.dll"
 	Delete "$INSTDIR\libeay32.dll"
 	Delete "$INSTDIR\ssleay32.dll"
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
@@ -177,6 +190,14 @@ Section Uninstall
 	Delete "$INSTDIR\plugins\tunetofileplugin.dll"
 	Delete "$INSTDIR\plugins\urlplugin.dll"
 	Delete "$INSTDIR\plugins\yandexmusicplugin.dll"
+	Delete "$INSTDIR\codecs\avcodec-lav-54.dll"
+	Delete "$INSTDIR\codecs\avformat-lav-54.dll"
+	Delete "$INSTDIR\codecs\avutil-lav-51.dll"
+	Delete "$INSTDIR\codecs\install_all.bat"
+	Delete "$INSTDIR\codecs\LAVAudio.ax"
+	Delete "$INSTDIR\codecs\LAVSplitter.ax"
+	Delete "$INSTDIR\codecs\libbluray.dll"
+	Delete "$INSTDIR\codecs\uninstall_all.bat"
 
 	; Remove remaining directories
 	RMDir "$INSTDIR\translations\"
@@ -186,6 +207,7 @@ Section Uninstall
 	RMDir "$INSTDIR\bearer\"
 	RMDir "$INSTDIR\audio\"
 	RMDir "$INSTDIR\plugins\"
+	RMDir "$INSTDIR\codecs\"
 	RMDir "$INSTDIR\"
 	
 	; Delete Shortcuts
