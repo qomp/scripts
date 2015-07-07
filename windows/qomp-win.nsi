@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 0.8.1 beta"
+!define APPNAMEANDVERSION "qomp 0.9 beta"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-0.8.1-beta-win32.exe"
+OutFile "qomp-0.9-beta-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -44,9 +44,9 @@ Section "qomp" Section1
 
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR\"
-	File "qomp\icudt53.dll"
-	File "qomp\icuin53.dll"
-	File "qomp\icuuc53.dll"
+	File "qomp\icudt54.dll"
+	File "qomp\icuin54.dll"
+	File "qomp\icuuc54.dll"
 	File "qomp\libeay32.dll"
 	File "qomp\ssleay32.dll"
 	File "qomp\libgcc_s_dw2-1.dll"
@@ -144,9 +144,9 @@ Section Uninstall
 	ExecWait "$INSTDIR\codecs\uninstall_all.bat"
 	
 	; Clean up qomp
-	Delete "$INSTDIR\icudt53.dll"
-	Delete "$INSTDIR\icuin53.dll"
-	Delete "$INSTDIR\icuuc53.dll"
+	Delete "$INSTDIR\icudt54.dll"
+	Delete "$INSTDIR\icuin54.dll"
+	Delete "$INSTDIR\icuuc54.dll"
 	Delete "$INSTDIR\libeay32.dll"
 	Delete "$INSTDIR\ssleay32.dll"
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
