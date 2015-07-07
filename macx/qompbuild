@@ -3,7 +3,7 @@
 #Use one of Qt settings sets
 
 # Qt5 Settings
-MAC_SDK_VER=10.8
+MAC_SDK_VER=10.9
 QTDIR="${HOME}/Qt5.4.1/5.4/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
