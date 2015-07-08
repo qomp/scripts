@@ -76,7 +76,7 @@ do_android()
 		old_ver=$(grep 'android:versionCode' *.xml | cut -d '"' -f 8 | cut -d " " -f 1)
 		let new_ver=10#$old_ver+1
 		cd ${qomp_path}
-		sed -e 's/android:versionCode=\"[0-9]\"/android:versionCode=\"'${new_ver}'\"/' -i ${android_file}
+		sed -e 's/android:versionCode=\"[0-9]\+\"/android:versionCode=\"'${new_ver}'\"/' -i ${android_file}
 	fi
 }
 
