@@ -44,7 +44,7 @@ check_version()
 	read ver
 	if [ ! -z "${ver}" ];then
 		version=${ver}
-		echo -e "${blue}Vestion: ${pink}$version${nocolor}"
+		echo -e "${blue}Version: ${pink}$version${nocolor}"
 		isloop=0
 	fi
 }
@@ -134,7 +134,7 @@ if [ ! -z "$@" ]; then
 			if [ ! -z "$2" ];then
 				if [ ! -z "$3" ]; then
 					version=$3
-					echo -e "${blue}Vestion: ${pink}$version${nocolor}"
+					echo -e "${blue}Version: ${pink}$version${nocolor}"
 					do_plugin $2
 				else
 					die "Plugin version not set!!!"
@@ -155,7 +155,7 @@ ${yellow}-p|--plugin PLUGINNAME${nocolor} 	${blue}set plugin name${nocolor}
 		else
 			if [ ! -z "$1" ]; then
 				version=$1
-				echo -e "${blue}Vestion: ${pink}$version${nocolor}"
+				echo -e "${blue}Version: ${pink}$version${nocolor}"
 				run_all
 			else
 				die "Version not set!!!"
