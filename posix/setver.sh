@@ -128,7 +128,7 @@ while [ ${isloop} = 1 ];do
 	check_qomp_dir
 done
 
-if [ ! -z "$@" ]; then
+if [ ! -z "$1" ]; then
 	if [ ! -z "$2" ];then
 		if [ "$1" == "-p" ] || [ "$1" == "--plugin" ]; then
 			if [ ! -z "$2" ];then
