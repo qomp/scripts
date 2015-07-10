@@ -4,17 +4,18 @@
 
 # Qt5 Settings
 MAC_SDK_VER=10.9
-QTDIR="${HOME}/Qt5.4.1/5.4/clang_64"
+QTDIR="${HOME}/Qt5.5.0/5.5/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
-QT_FRAMEWORKS_PREFIX="${QT_FRAMEWORKS_DIR}/"
+QT_FRAMEWORKS_PREFIX="@rpath/"
 QT_TRANS_DIR="${QTDIR}/translations"
 QT_PLUGINS_DIR="${QTDIR}/plugins"
-QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia QtMultimediaWidgets QtWidgets QtConcurrent QtPrintSupport QtOpenGL"
+QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia QtMultimediaWidgets QtWidgets QtConcurrent QtPrintSupport QtOpenGL QtDBus"
 QT_FRAMEWORK_VERSION=5
 QT_PLUGINS="audio/libqtaudio_coreaudio.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib platforms/libqcocoa.dylib printsupport/libcocoaprintersupport.dylib"
 QT_PLUGINS="${QT_PLUGINS} mediaservice/libqtmedia_audioengine.dylib mediaservice/libqavfmediaplayer.dylib"
 export QMAKESPEC="macx-clang"
+
 
 
 # Qt4 Settings
