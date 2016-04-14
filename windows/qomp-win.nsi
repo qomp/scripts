@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 0.9 beta"
+!define APPNAMEANDVERSION "qomp 1.0"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-0.9-beta-win32.exe"
+OutFile "qomp-1.0-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -76,6 +76,9 @@ Section "qomp" Section1
 	File "qomp\platforms\qwindows.dll"
 	SetOutPath "$INSTDIR\playlistformats\"
 	File "qomp\playlistformats\qtmultimedia_m3u.dll"
+	SetOutPath "$INSTDIR\imageformats\"
+	File "qomp\imageformats\qgif.dll"
+	File "qomp\imageformats\qjpeg.dll"
 	SetOutPath "$INSTDIR\translations\"
 	File "qomp\translations\qomp_ru.qm"
 	File "qomp\translations\qtbase_ru.qm"
@@ -171,6 +174,8 @@ Section Uninstall
 	Delete "$INSTDIR\mediaservice\qtmedia_audioengine.dll"
 	Delete "$INSTDIR\platforms\qwindows.dll"
 	Delete "$INSTDIR\playlistformats\qtmultimedia_m3u.dll"
+	Delete "$INSTDIR\imageformats\qgif.dll"
+	Delete "$INSTDIR\imageformats\qjpeg.dll"
 	Delete "$INSTDIR\translations\qomp_ru.qm"
 	Delete "$INSTDIR\translations\qtbase_ru.qm"
 	Delete "$INSTDIR\translations\qtconfig_ru.qm"
@@ -204,6 +209,7 @@ Section Uninstall
 	RMDir "$INSTDIR\playlistformats\"
 	RMDir "$INSTDIR\platforms\"
 	RMDir "$INSTDIR\mediaservice\"
+	RMDir "$INSTDIR\imageformats\"
 	RMDir "$INSTDIR\bearer\"
 	RMDir "$INSTDIR\audio\"
 	RMDir "$INSTDIR\plugins\"
