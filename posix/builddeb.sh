@@ -317,9 +317,15 @@ build_i386 ()
 	dscfile=${builddir}/${nameprefix}.dsc
 	srcfile=${builddir}/${nameprefix}.tar.gz
 	if [ -f "${dscfile}" ] && [ -f "${srcfile}" ]; then
-		sudo DIST=${oscodename} ARCH=${targetarch} cowbuilder --build ${dscfile} --basepath=/var/cache/pbuilder/${oscodename}-${targetarch}
+		sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --build ${dscfile}
 		cp -f /var/cache/pbuilder/${oscodename}-${targetarch}/result/${nameprefix}_${targetarch}.deb ${exitdir}/
 	fi
+}
+
+prepare_pbuilder ()
+{
+	targetarch=i386
+	sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --create
 }
 
 print_menu ()
@@ -338,6 +344,7 @@ choose_action ()
 		"1" ) build_qomp;;
 		"2" ) build_qomp_qt5;;
 		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
+		"12" ) prepare_pbuilder
 		"3" ) rm_all;;
 		"0" ) quit;;
 	esac

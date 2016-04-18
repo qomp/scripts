@@ -83,13 +83,9 @@ src_configure() {
 	use lastfmplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};lastfmplugin"
 	use tunetofileplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};tunetofileplugin"
 	use mprisplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};mprisplugin"
-	use qt5 && QT_FLAG="ON"
-	use qt4 && QT_FLAG="OFF"
-	if [[ ! -z ${PLUGINS_FLAGS} ]] ; then
-		mycmakeargs="${mycmakeargs}
-			-DBUILD_PLUGINS='${PLUGINS_FLAGS}'
-			-DUSE_QT5='${QT_FLAG}'
-			"
-	fi
+	local mycmakeargs=(
+		$(cmake-utils_use_use qt5 QT5)
+		$(echo -DBUILD_PLUGINS=${PLUGINS_FLAGS})
+	)
 	cmake-utils_src_configure
 }
