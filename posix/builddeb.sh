@@ -344,7 +344,7 @@ choose_action ()
 		"1" ) build_qomp;;
 		"2" ) build_qomp_qt5;;
 		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
-		"12" ) prepare_pbuilder
+		"12" ) prepare_pbuilder;;
 		"3" ) rm_all;;
 		"0" ) quit;;
 	esac
