@@ -41,8 +41,14 @@ QOMP_APP="qomp.app"
 
 GROWL_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSNWhuOW1rbV9WYmc"
 GROWL_FILE="Growl-2.0.1"
-TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSRzkxSjJsRWVDRjg"
-TAG_FILE="taglib-1.9.1"
+
+TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSd3lkRmhrU2VKNkk"
+TAG_FILE="taglib-1.11"
+TAG_VER="1.16.0"
+
+CUE_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSQjFWa0ZtdHI5Wk0"
+CUE_FILE="libcue-2.1.0"
+CUE_PATH=${QOMP_DIR}/libcue
 
 # official repository
 GIT_REPO="https://github.com/qomp/qomp.git"
@@ -131,14 +137,12 @@ prepare_workspace() {
 	cd "${QOMP_DIR}"
 	get_framework $GROWL_URL $GROWL_FILE $FRAMEWORKS_DIR Growl.framework
 	get_framework $TAG_URL $TAG_FILE $FRAMEWORKS_DIR tag.framework
+	get_framework $CUE_URL $CUE_FILE
 }
 
 get_framework() {
 	get_url=$1
-	file_name=$2
-	des_path=$3
-	des_file=$4
-	
+	file_name=$2	
 
 	if [ ! -f $file_name.tar.bz2 ]; then
 		log "Downloading $file_name"
@@ -146,9 +150,14 @@ get_framework() {
 		tar jxvf $file_name.tar.bz2 || die "can't extract file $file_name"
 	fi
 
-	if [ ! -d $des_path/$des_file ]; then
-		echo "We need admin password for copying $file_name framework"
-		sudo cp -a $des_file $des_path
+	if [ -n "$3" ]; then
+		des_path=$3
+		des_file=$4
+		
+		if [ ! -d $des_path/$des_file ]; then
+			echo "We need admin password for copying $file_name framework"
+			sudo cp -a $des_file $des_path
+		fi
 	fi
 }
 
@@ -180,7 +189,7 @@ src_compile() {
 		echo "QMAKE_MAC_SDK = macosx${MAC_SDK_VER}" >> conf.pri
 	fi
 	
-	$QMAKE CONFIG+=release	
+	$QMAKE "CONFIG+=release" "CUE_PATH=${CUE_PATH}"	
 
 	$MAKE $MAKEOPT || die "make failed"
 }
@@ -189,7 +198,6 @@ copy_resources() {
 	cd "${QOMP_DIR}"/build/bin
 	plugins=`ls plugins | grep ".dylib"`
 
-	TAG_VER="1.14.0"
 	MORE_FRAMEWORKS="Growl tag"
 
 	contentsdir=${QOMP_APP}/Contents
@@ -229,8 +237,6 @@ copy_resources() {
 
 	for m in $MORE_FRAMEWORKS; do
 		cp -a "${FRAMEWORKS_DIR}/${m}.framework" "$contentsdir/Frameworks"
-#		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/MacOS/qomp"
-#		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$contentsdir/Frameworks/libqomp.1.dylib"
 	done
 
 	cleanup_framework "$contentsdir/Frameworks/Growl.framework" Growl A 
@@ -238,11 +244,15 @@ copy_resources() {
 #	install_name_tool -id "@executable_path/../Frameworks/Growl.framework/Versions/A/Growl" "$contentsdir/Frameworks/Growl.framework/Growl"
 #	install_name_tool -id "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$contentsdir/Frameworks/tag.framework/tag"
 		
+	cp -f "${CUE_PATH}/lib/libcue.dylib" "$contentsdir/Frameworks/libcue.2.dylib"
+	install_name_tool -id @executable_path/../Frameworks/libcue.2.dylib $contentsdir/Frameworks/libcue.2.dylib
+
 	app_bundle_plugins_dir="$contentsdir/Resources/plugins"
 	mkdir "$app_bundle_plugins_dir"
 	for p in ${plugins}; do
 		cp -f plugins/$p "$app_bundle_plugins_dir"/$p
 		install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$app_bundle_plugins_dir/$p"
+		install_name_tool -change "libcue.2.dylib" "@executable_path/../Frameworks/libcue.2.dylib" "$app_bundle_plugins_dir/$p"
 
 #		for m in $MORE_FRAMEWORKS; do
 #			install_name_tool -change "${FRAMEWORKS_DIR}/${m}.framework" "@executable_path/../Frameworks/${m}.framework" "$app_bundle_plugins_dir/$p"
