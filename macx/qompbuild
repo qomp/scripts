@@ -124,7 +124,11 @@ prepare_workspace() {
 	log "Init directories..."
 	if [ ! -d "${QOMP_DIR}" ]
 	then
-		mkdir "${QOMP_DIR}" || die "can't create work directory ${QOMP_DIR}"
+		mkdir "${QOMP_DIR}" || die "can't create work directory ${QOMP_DIR}"	
+	fi
+
+	if [ ! -d "${QOMP_DIR}/qomp" ]
+	then
 		fetch_sources
 	fi
 
