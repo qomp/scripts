@@ -28,6 +28,10 @@ CWDIR=$(pwd)
 build_count=1
 isloop=1
 
+#GIT REPO URI
+qomp_git=https://github.com/qomp/qomp.git
+themes_git=https://github.com/qomp/themes.git
+
 #COLORS
 pink="\x1B[01;91m"
 green="\e[0;32m"
@@ -102,24 +106,27 @@ rm_all ()
 
 get_src ()
 {
+	fetch_from_git() {
+		if [ ! -d "$2" ]; then
+			git clone $1 $2
+			cd $2
+			git submodule init
+			git submodule update
+		else
+			cd $2
+			git reset --hard
+			git pull
+			git submodule update
+			git pull
+		fi
+	}
 	cd ${homedir}
 	check_dir ${srcdir}
 	cd ${srcdir}
-	if [ ! -d "${projectdir}" ]
-	then
-		git clone https://github.com/qomp/qomp.git ${projectdir}
-		cd ${projectdir}
-		git submodule init
-		git submodule update
-	else
-		cd ${projectdir}
-		git reset --hard
-		git pull
-		git submodule update
-		git pull
-	fi
+	fetch_from_git ${qomp_git} ${projectdir}
 	cd ${srcdir}
-
+	fetch_from_git ${themes_git} ${srcdir}/themes
+	cd ${srcdir}
 }
 
 build_deb ()
@@ -215,20 +222,37 @@ DEB_CMAKE_EXTRA_FLAGS += ${cmake_flags}
 CFLAGS=-O2 -pthread
 CXXFLAGS=-O2 -pthread
 "
+rules_themes="#!/usr/bin/make -f
+# -*- makefile -*-
 
-	echo "${rules_qt}" > rules
+#export DH_VERBOSE=1
+config.status: configure
+	dh_testdir
+  
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/qmake.mk
+
+# Add here any variable or target overrides you need.
+CFLAGS=-O2 -pthread
+CXXFLAGS=-O2 -pthread
+"
+	if [ "${project}" == "qomp" ]; then
+		echo "${rules_qt}" > rules
+		echo "${docs}" > docs
+	else
+		echo "${rules_themes}" > rules
+	fi
 	echo "${changelog}" > changelog
 	echo "${compat}" > compat
 	echo "${control}" > control
 	echo "${copyright}" > copyright
-	echo "${docs}" > docs
 	echo "${dirs}" > dirs
 }
 #
 
 set_vars ()
 {
-	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libqjson-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libcue-dev, libqjson-dev, pkg-config, cmake"
 	addit="#"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	description="Quick(Qt) Online Music Player"
@@ -247,7 +271,19 @@ ${pprefix}/share/applications
 ${pprefix}/share/qomp
 ${pprefix}/share/qomp/plugins
 ${pprefix}/share/qomp/translations"
-	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=OFF"
+}
+
+set_theme_vars()
+{
+	builddep="debhelper (>= 7), cdbs, qtbase5-dev"
+	addit="#"
+	depends="\${shlibs:Depends}, \${misc:Depends}, qomp (>=1.0)"
+	description="Quick(Qt) Online Music Player Themes"
+	descriptionlong='Themes for Quick(Qt) Online Music Player.'
+	dirs="${pprefix}/share/qomp
+${pprefix}/share/qomp/themes"
+	changelogtext="* Upstream updated"
 }
 
 get_changelog ()
@@ -291,14 +327,35 @@ build_qomp_qt5 ()
 	get_src
 	set_vars
 	project="qomp"
-	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, libtag1-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, libtag1-dev, libcue-dev, pkg-config, cmake"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
-	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	get_version
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cp -rf ${projectdir}/* ${debdir}/
+	cd ${debdir}
+	check_dir ${debdir}/debian
+	cd ${debdir}/debian
+	prepare_specs
+	cd ${debdir}
+	build_deb
+	check_dir ${exitdir}
+	cp -f ${builddir}/*.deb	${exitdir}/
+}
+
+build_themes ()
+{
+	clean_build ${builddir}
+	check_dir ${builddir}
+	get_src
+	project="qomp-themes"
+	set_theme_vars
+	get_version
+	debdir=${builddir}/${project}-${ver}
+	check_dir ${debdir}
+	cp -rf ${srcdir}/themes/* ${debdir}/
 	cd ${debdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
@@ -332,8 +389,9 @@ print_menu ()
 {
 	echo -e "${blue}Choose action TODO!${nocolor}
 ${pink}[1]${nocolor} - Build qomp debian package
-${pink}[2]${nocolor} - Build qomp debian package with Qt5
-${pink}[3]${nocolor} - Remove all sources
+${pink}[2]${nocolor} - Build qomp-themes debian package
+${pink}[3]${nocolor} - Build qomp debian package with Qt4
+${pink}[4]${nocolor} - Remove all sources
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -341,11 +399,12 @@ choose_action ()
 {
 	read vibor
 	case ${vibor} in
-		"1" ) build_qomp;;
-		"2" ) build_qomp_qt5;;
+		"1" ) build_qomp_qt5;;
+		"2" ) build_themes;;
+		"3" ) build_qomp;;
 		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
 		"12" ) prepare_pbuilder;;
-		"3" ) rm_all;;
+		"4" ) rm_all;;
 		"0" ) quit;;
 	esac
 }

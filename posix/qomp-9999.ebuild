@@ -46,6 +46,7 @@ DEPEND="
 	gstreamer? ( media-libs/phonon-gstreamer )
 	vlc? ( media-libs/phonon-vlc )
 	media-libs/taglib
+	>=media-libs/libcue-1.4.0
 "
 
 REQUIRED_USE="^^ ( qt4  qt5 )"
