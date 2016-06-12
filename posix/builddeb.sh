@@ -228,14 +228,12 @@ rules_themes="#!/usr/bin/make -f
 #export DH_VERBOSE=1
 config.status: configure
 	dh_testdir
-  
+
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/qmake.mk
-
-# Add here any variable or target overrides you need.
-CFLAGS=-O2 -pthread
-CXXFLAGS=-O2 -pthread
+QMAKE = qmake -qt=5 PREFIX=/usr
 "
+
 	if [ "${project}" == "qomp" ]; then
 		echo "${rules_qt}" > rules
 		echo "${docs}" > docs
@@ -283,7 +281,7 @@ set_theme_vars()
 	descriptionlong='Themes for Quick(Qt) Online Music Player.'
 	dirs="${pprefix}/share/qomp
 ${pprefix}/share/qomp/themes"
-	changelogtext="* Upstream updated"
+	changelogtext="  * Upstream updated"
 }
 
 get_changelog ()
