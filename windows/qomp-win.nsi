@@ -109,6 +109,8 @@ Section "qomp" Section1
 	File "qomp\codecs\LAVSplitter.ax"
 	File "qomp\codecs\libbluray.dll"
 	File "qomp\codecs\uninstall_all.bat"
+	SetOutPath "$INSTDIR\themes\"
+	File "qomp\themes\themes.rcc"
 	
 	ExecWait "$INSTDIR\codecs\install_all.bat"
 	
@@ -203,6 +205,7 @@ Section Uninstall
 	Delete "$INSTDIR\codecs\LAVSplitter.ax"
 	Delete "$INSTDIR\codecs\libbluray.dll"
 	Delete "$INSTDIR\codecs\uninstall_all.bat"
+	Delete "$INSTDIR\themes\themes.rcc"
 
 	; Remove remaining directories
 	RMDir "$INSTDIR\translations\"
@@ -214,6 +217,7 @@ Section Uninstall
 	RMDir "$INSTDIR\audio\"
 	RMDir "$INSTDIR\plugins\"
 	RMDir "$INSTDIR\codecs\"
+	RMDir "$INSTDIR\themes\"
 	RMDir "$INSTDIR\"
 	
 	; Delete Shortcuts
