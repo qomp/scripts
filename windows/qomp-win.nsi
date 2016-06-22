@@ -128,6 +128,27 @@ Section -FinishSection
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$INSTDIR\uninstall.exe"
 	WriteUninstaller "$INSTDIR\uninstall.exe"
+	
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\App Paths\${APPNAME}.exe" "" "$INSTDIR\qomp.exe"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\App Paths\${APPNAME}.exe" "Path" "$INSTDIR"
+	
+	WriteRegStr HKCR ".mp3\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".wav\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".ogg\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".cue\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".flac\OpenWithProgids" "${APPNAME}" ""
+	
+	WriteRegStr HKCR "${APPNAME}" "" "${APPNAME}"
+	WriteRegStr HKCR "${APPNAME}\Shell\open\command" "" '"$INSTDIR\qomp.exe" "%1"'
+	WriteRegStr HKCR "${APPNAME}\DefaultIcon" "" "$INSTDIR\${APPNAME}.exe,0"
+	
+	WriteRegStr HKCR "Applications\${APPNAME}.exe" "FriendlyAppName" "qomp media player"
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".mp3" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".ogg" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".wav" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".cue" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".flac" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\Shell\open\command" "" '"$INSTDIR\${APPNAME}.exe" "%1"'
 
 SectionEnd
 
@@ -142,6 +163,7 @@ Section Uninstall
 	;Remove from registry...
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
 	DeleteRegKey HKLM "SOFTWARE\${APPNAME}"
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\App Paths\${APPNAME}.exe"
 
 	; Delete self
 	Delete "$INSTDIR\uninstall.exe"
@@ -226,6 +248,9 @@ Section Uninstall
 	Delete "$SMPROGRAMS\qomp\qomp.lnk"
 	Delete "$SMPROGRAMS\qomp\Uninstall.lnk"
 	RMDir "$SMPROGRAMS\qomp"
+
+	DeleteRegKey HKCR "${APPNAME}"
+	DeleteRegKey HKCR "Applications\${APPNAME}.exe"
 
 SectionEnd
 
