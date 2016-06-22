@@ -15,6 +15,7 @@ IUSE="
 	notificationsplugin
 	yandexmusicplugin
 	lastfmplugin
+	themes
 	tunetofileplugin
 	mprisplugin
 	vlc
@@ -46,6 +47,7 @@ DEPEND="
 	gstreamer? ( media-libs/phonon-gstreamer )
 	vlc? ( media-libs/phonon-vlc )
 	media-libs/taglib
+	>=media-libs/libcue-1.4.0
 "
 
 REQUIRED_USE="^^ ( qt4  qt5 )"
@@ -62,11 +64,23 @@ RDEPEND="
 DESCRIPTION="Quick(Qt) Online Music Player - one player for different online music hostings"
 HOMEPAGE="http://sourceforge.net/projects/qomp/"
 EGIT_REPO_URI="https://github.com/qomp/qomp.git"
+QOMP_THEMES_URI="https://github.com/qomp/themes.git"
 EGIT_MIN_CLONE_TYPE="single"
 
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 LICENSE="GPL-3"
+
+src_unpack() {
+	git-r3_src_unpack
+	if use themes; then
+		unset EGIT_BRANCH EGIT_COMMIT
+		EGIT_REPO_URI="${QOMP_THEMES_URI}"
+		EGIT_CHECKOUT_DIR="${WORKDIR}/${P}/themes"
+		git-r3_src_unpack
+	fi
+}
+
 
 src_configure() {
 	if use qtphonon; then
@@ -85,6 +99,7 @@ src_configure() {
 	use mprisplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};mprisplugin"
 	local mycmakeargs=(
 		$(cmake-utils_use_use qt5 QT5)
+		$(cmake-utils_use_build themes THEMES)
 		$(echo -DBUILD_PLUGINS=${PLUGINS_FLAGS})
 	)
 	cmake-utils_src_configure
