@@ -267,7 +267,6 @@ ${pprefix}/share/icons/hicolor/64x64/apps
 ${pprefix}/share/icons/hicolor/32x32/apps
 ${pprefix}/share/applications
 ${pprefix}/share/qomp
-${pprefix}/share/qomp/plugins
 ${pprefix}/share/qomp/translations"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=OFF"
 }
