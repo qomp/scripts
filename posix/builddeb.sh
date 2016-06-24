@@ -125,8 +125,8 @@ get_src ()
 	cd ${srcdir}
 	fetch_from_git ${qomp_git} ${projectdir}
 	cd ${srcdir}
-	fetch_from_git ${themes_git} ${srcdir}/themes
-	cd ${srcdir}
+	#fetch_from_git ${themes_git} ${srcdir}/themes
+	#cd ${srcdir}
 }
 
 build_deb ()
@@ -297,6 +297,18 @@ get_version()
 	ver=$(sed -n '/[^_]APPLICATION_VERSION/p' ${projectdir}/libqomp/src/defines.h | cut -d '"' -f 2 | sed "s/\s/-/")
 }
 
+prepare_sources()
+{
+	if [ ! -z "$1" ]; then
+		git archive --format=tar HEAD | ( cd $1 ; tar xf - )
+		(
+		export ddir="$1"
+		git submodule foreach "( git archive --format=tar HEAD ) \
+		| ( cd \"${ddir}/\${path}\" ; tar xf - )"
+		)
+	fi
+}
+
 build_qomp ()
 {
 	clean_build ${builddir}
@@ -307,7 +319,8 @@ build_qomp ()
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
-	cp -rf ${projectdir}/* ${debdir}/
+	cd ${projectdir}
+	prepare_sources ${debdir}
 	cd ${debdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
@@ -325,14 +338,15 @@ build_qomp_qt5 ()
 	get_src
 	set_vars
 	project="qomp"
-	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, libtag1-dev, libcue-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	get_version
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
-	cp -rf ${projectdir}/* ${debdir}/
+	cd ${projectdir}
+	prepare_sources ${debdir}
 	cd ${debdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
