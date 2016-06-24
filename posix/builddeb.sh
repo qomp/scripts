@@ -314,6 +314,7 @@ prepare_sources()
 
 build_qomp ()
 {
+	check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
 	clean_build ${builddir}
 	check_dir ${builddir}
 	get_src
@@ -336,6 +337,7 @@ build_qomp ()
 
 build_qomp_qt5 ()
 {
+	check_deps "debhelper cdbs qtmultimedia5-dev qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
 	clean_build ${builddir}
 	check_dir ${builddir}
 	get_src
@@ -398,6 +400,22 @@ prepare_pbuilder ()
 {
 	targetarch=i386
 	sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --create
+}
+
+check_deps()
+{
+	if [ ! -z "$1" ]; then
+		instdep=""
+		for dependency in $1; do
+			echo "${dependency}"
+			local result=$(dpkg --get-selections | grep ${dependency})
+			if [ -z "${result}" ]; then
+				echo -e "${blue}Package ${dependency} not installed. Trying to install...${nocolor}"
+				instdep="${instdep} ${dependency}"
+			fi
+		done
+		sudo apt-get install ${instdep}
+	fi
 }
 
 print_menu ()
