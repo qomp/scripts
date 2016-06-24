@@ -149,7 +149,7 @@ Section: ${section}
 Priority: extra
 Maintainer: ${Maintainer}
 Build-Depends: ${builddep}
-Standards-Version: 3.8.1
+Standards-Version: 3.9.7
 Homepage: ${qomphomepage}
 
 Package: ${project}
@@ -159,26 +159,21 @@ Depends: ${depends}
 Description: ${description}
  ${descriptionlong}
 "
-copyright="This package was debianized by:
-
-    ${Maintainer} on ${data}
+copyright="This package was debianized by ${Maintainer} on ${data}
 
 It was downloaded from:
-
     ${qomphomepage}
 
-Upstream Author(s):
-
-    Khryukin Evgeny <wadealer@gmail.com>
+Upstream Author: Khryukin Evgeny <wadealer@gmail.com>
 
 License:
 
-    This program is free software: you can redistribute it and/or modify
+    qomp is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    This package is distributed in the hope that it will be useful,
+    qomp is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -186,17 +181,26 @@ License:
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+    In addition, as a special exception, the copyright holders give
+    permission to link the code of portions of this program with the
+    OpenSSL library under certain conditions as described in each
+    individual source file, and distribute linked combinations
+    including the two.
+    You must obey the GNU General Public License in all respects
+    for all of the code used other than OpenSSL.  If you modify
+    file(s) with this exception, you may extend this exception to your
+    version of the file(s), but you are not obligated to do so.  If you
+    do not wish to do so, delete this exception statement from your
+    version.  If you delete this exception statement from all source
+    files in the program, then also delete it here.
+
 On Debian systems, the complete text of the GNU General
-Public License version 3 can be found in \"/usr/share/common-licenses/GPL-3\".
+Public License can be found in \"/usr/share/common-licenses/GPL-3\".
 
-The Debian packaging is:
-
-    Copyright (C) ${year} ${Maintainer} 
-
+The Debian packaging is (C) ${year} ${Maintainer},
 and is licensed under the GPL version 3, see above.
 
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.
+Copyright 2013-2016 Khryukin Evgeny <wadealer@gmail.com>
 "
 docs=${docfiles}
 
@@ -252,11 +256,10 @@ set_vars ()
 {
 	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libcue-dev, libqjson-dev, pkg-config, cmake"
 	addit="#"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.'
-	docfiles="README
-LICENSE.txt"
+	docfiles="README"
 	
 	dirs="${pprefix}/bin
 ${pprefix}/share/icons/hicolor/128x128/apps
@@ -338,7 +341,7 @@ build_qomp_qt5 ()
 	set_vars
 	project="qomp"
 	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libc6 (>=2.7-1), libgcc1 (>=1:4.1.1), libstdc++6 (>=4.1.1), libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	get_version
 	get_changelog
