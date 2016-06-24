@@ -116,6 +116,7 @@ get_src ()
 			cd $2
 			git reset --hard
 			git pull
+			git submodule init
 			git submodule update
 			git pull
 		fi
