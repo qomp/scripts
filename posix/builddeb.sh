@@ -4,6 +4,7 @@ srcdir=${homedir}/build
 projectdir=${srcdir}/qomp
 builddir=${srcdir}/tmpbuild
 exitdir=${srcdir}/debians
+develdir=${srcdir}/dev
 data=$(LANG=en date +'%a, %d %b %Y %T %z')
 if [ "$(lsb_release -is)" == "Ubuntu" ]; then
 	oscodename=$(lsb_release -cs)
@@ -30,7 +31,6 @@ isloop=1
 
 #GIT REPO URI
 qomp_git=https://github.com/qomp/qomp.git
-themes_git=https://github.com/qomp/themes.git
 
 #COLORS
 pink="\x1B[01;91m"
@@ -63,7 +63,7 @@ else
 	fi
 fi
 
-Maintainer="KukuRuzo <thetvg@gmail.com>"
+Maintainer="Vitaly Tonkacheyev <thetvg@gmail.com>"
 
 quit ()
 {
@@ -126,13 +126,11 @@ get_src ()
 	cd ${srcdir}
 	fetch_from_git ${qomp_git} ${projectdir}
 	cd ${srcdir}
-	#fetch_from_git ${themes_git} ${srcdir}/themes
-	#cd ${srcdir}
 }
 
 build_deb ()
 {
-	dpkg-buildpackage -rfakeroot
+	dpkg-buildpackage -rfakeroot -us -uc
 }
 
 #
@@ -142,7 +140,7 @@ changelog="${project} (${ver}-${build_count}) ${oscodename}; urgency=low
 
 ${changelogtext}
 
- -- ${username} <thetvg@gmail.com>  ${data}"
+ -- ${Maintainer} ${data}"
 
 compat="7"
 control="Source: ${project}
@@ -333,6 +331,10 @@ build_qomp ()
 	build_deb
 	check_dir ${exitdir}
 	cp -f ${builddir}/*.deb	${exitdir}/
+	cp -f ${builddir}/*.deb	${develdir}/
+	cp -f ${builddir}/*.dsc	${develdir}/
+	cp -f ${builddir}/*.changes	${develdir}/
+	cp -f ${builddir}/*.tar.gz	${develdir}/
 }
 
 build_qomp_qt5 ()
@@ -345,7 +347,7 @@ build_qomp_qt5 ()
 	project="qomp"
 	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
-	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
 	get_version
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
@@ -360,6 +362,10 @@ build_qomp_qt5 ()
 	build_deb
 	check_dir ${exitdir}
 	cp -f ${builddir}/*.deb	${exitdir}/
+	cp -f ${builddir}/*.deb	${develdir}/
+	cp -f ${builddir}/*.dsc	${develdir}/
+	cp -f ${builddir}/*.changes	${develdir}/
+	cp -f ${builddir}/*.tar.gz	${develdir}/
 }
 
 build_themes ()
