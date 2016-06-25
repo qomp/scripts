@@ -140,7 +140,7 @@ changelog="${project} (${ver}-${build_count}) ${oscodename}; urgency=low
 
 ${changelogtext}
 
- -- Vitaly <thetvg@gmail.com> ${data}"
+ -- ${Maintainer}  ${data}"
 
 compat="7"
 control="Source: ${project}
@@ -308,6 +308,7 @@ prepare_sources()
 		| ( cd \"${ddir}/\${path}\" ; tar xf - )"
 		)
 	fi
+	check_dir ${develdir}
 }
 
 build_qomp ()
