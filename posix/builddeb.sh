@@ -140,7 +140,7 @@ changelog="${project} (${ver}-${build_count}) ${oscodename}; urgency=low
 
 ${changelogtext}
 
- -- ${Maintainer} ${data}"
+ -- Vitaly <thetvg@gmail.com> ${data}"
 
 compat="7"
 control="Source: ${project}
