@@ -136,7 +136,7 @@ build_deb ()
 #
 prepare_specs ()
 {
-changelog="${project} (${ver}-${build_count}) ${oscodename}; urgency=low
+changelog="${project} (${ver}-0ubuntu1~0ppa${build_count}~${oscodename}) ${oscodename}; urgency=low
 
 ${changelogtext}
 
@@ -308,6 +308,10 @@ prepare_sources()
 		| ( cd \"${ddir}/\${path}\" ; tar xf - )"
 		)
 	fi
+
+        cd $1/..
+        tar -zcf ${project}_${ver}.orig.tar.gz *
+
 	check_dir ${develdir}
 }
 
