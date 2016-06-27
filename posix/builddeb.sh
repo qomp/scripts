@@ -394,13 +394,13 @@ build_qomp_qt5 ()
 build_qomp_ppa()
 {
 	prepare_qt5
+	clean_build ${develdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
 	prepare_specs ppa
 	cd ${debdir}
 	build_deb ppa
 	check_dir ${develdir}
-	cp -f ${builddir}/*.deb	${develdir}/
 	cp -f ${builddir}/*.dsc	${develdir}/
 	cp -f ${builddir}/*.tar.gz	${develdir}/
 	cp -f ${builddir}/*.changes	${develdir}/
@@ -503,9 +503,8 @@ print_menu ()
 	echo -e "${blue}Choose action TODO!${nocolor}
 ${pink}[1]${nocolor} - Build qomp debian package (Qt5)
 ${pink}[2]${nocolor} - Set build commit
-${pink}[3]${nocolor} - Build qomp debian package with Qt4
+${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
-${pink}[5]${nocolor} - Build packages for PPA
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -515,11 +514,11 @@ choose_action ()
 	case ${vibor} in
 		"1" ) build_qomp_qt5;;
 		"2" ) set_commit;;
-		"3" ) build_qomp;;
+		"5" ) build_qomp;;
 		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
 		"12" ) prepare_pbuilder;;
 		"4" ) rm_all;;
-		"5" ) build_qomp_ppa;;
+		"3" ) build_qomp_ppa;;
 		"0" ) quit;;
 	esac
 }
