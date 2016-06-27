@@ -403,8 +403,9 @@ build_qomp_ppa()
 	check_dir ${develdir}
 	cp -f ${builddir}/*.dsc	${develdir}/
 	cp -f ${builddir}/*.tar.gz	${develdir}/
+	cp -f ${builddir}/*.diff.gz	${develdir}/
+	cp -f ${builddir}/*.build	${develdir}/
 	cp -f ${builddir}/*.changes	${develdir}/
-	cp -f ${builddir}/${project}_${ver}.orig.tar.gz	${develdir}/
 	echo -e "${blue}Do you want to upload builded package to PPA?[y/n(default)]"
 	read choose
 	if [ "${choose}" == "y" ]; then
