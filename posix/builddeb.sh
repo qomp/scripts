@@ -130,13 +130,22 @@ get_src ()
 
 build_deb ()
 {
-	dpkg-buildpackage -rfakeroot -us -uc
+	if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
+		debuild -kE48E329C -S
+	else
+		dpkg-buildpackage -rfakeroot -us -uc
+	fi
 }
 
 #
 prepare_specs ()
 {
-changelog="${project} (${ver}-0ubuntu1~0ppa${build_count}~${oscodename}) ${oscodename}; urgency=low
+if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
+	versuffix="${ver}-0ubuntu1~0ppa${build_count}~${oscodename}"
+else
+	versuffix="${ver}-0ubuntu${build_count}"
+fi
+changelog="${project} (${versuffix}) ${oscodename}; urgency=low
 
 ${changelogtext}
 
@@ -225,24 +234,9 @@ DEB_CMAKE_EXTRA_FLAGS += ${cmake_flags}
 CFLAGS=-O2 -pthread
 CXXFLAGS=-O2 -pthread
 "
-rules_themes="#!/usr/bin/make -f
-# -*- makefile -*-
 
-#export DH_VERBOSE=1
-config.status: configure
-	dh_testdir
-
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/qmake.mk
-QMAKE = qmake -qt=5 PREFIX=/usr
-"
-
-	if [ "${project}" == "qomp" ]; then
-		echo "${rules_qt}" > rules
-		echo "${docs}" > docs
-	else
-		echo "${rules_themes}" > rules
-	fi
+	echo "${rules_qt}" > rules
+	echo "${docs}" > docs
 	echo "${changelog}" > changelog
 	echo "${compat}" > compat
 	echo "${control}" > control
@@ -255,9 +249,17 @@ set_vars ()
 {
 	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libcue-dev, libqjson-dev, pkg-config, cmake"
 	addit="#"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	description="Quick(Qt) Online Music Player"
-	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.'
+	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.
+main features:
+* search and play music from several online music hostings (Yande.Music, myzuka.ru, pleer.com);
+* play music from local filesystem;
+* Last.fm scrobbling;
+* MPRIS support(Linux only);
+* System tray integration;
+* proxy-server support;
+* playlists support;
+* crossplatform (Windows, OS X, Linux, Android).'
 	docfiles="README"
 	
 	dirs="${pprefix}/bin
@@ -308,20 +310,18 @@ prepare_sources()
 		| ( cd \"${ddir}/\${path}\" ; tar xf - )"
 		)
 	fi
-
-        cd $1/..
-        tar -zcf ${project}_${ver}.orig.tar.gz *
-
-	check_dir ${develdir}
+	cd ${builddir}
+	tar -zcf ${project}_${ver}.orig.tar.gz *
 }
 
-build_qomp ()
+prepare_qt4()
 {
-	check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
+	check_qt_deps 4
 	clean_build ${builddir}
 	check_dir ${builddir}
 	get_src
 	set_vars
+	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	get_version
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
@@ -329,22 +329,11 @@ build_qomp ()
 	cd ${projectdir}
 	prepare_sources ${debdir}
 	cd ${debdir}
-	check_dir ${debdir}/debian
-	cd ${debdir}/debian
-	prepare_specs
-	cd ${debdir}
-	build_deb
-	check_dir ${exitdir}
-	cp -f ${builddir}/*.deb	${exitdir}/
-	cp -f ${builddir}/*.deb	${develdir}/
-	cp -f ${builddir}/*.dsc	${develdir}/
-	cp -f ${builddir}/*.changes	${develdir}/
-	cp -f ${builddir}/*.tar.gz	${develdir}/
 }
 
-build_qomp_qt5 ()
+prepare_qt5()
 {
-	check_deps "debhelper cdbs qtmultimedia5-dev qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
+	check_qt_deps 5
 	clean_build ${builddir}
 	check_dir ${builddir}
 	get_src
@@ -360,38 +349,114 @@ build_qomp_qt5 ()
 	cd ${projectdir}
 	prepare_sources ${debdir}
 	cd ${debdir}
-	check_dir ${debdir}/debian
-	cd ${debdir}/debian
-	prepare_specs
-	cd ${debdir}
-	build_deb
-	check_dir ${exitdir}
-	cp -f ${builddir}/*.deb	${exitdir}/
-	cp -f ${builddir}/*.deb	${develdir}/
-	cp -f ${builddir}/*.dsc	${develdir}/
-	cp -f ${builddir}/*.changes	${develdir}/
-	cp -f ${builddir}/*.tar.gz	${develdir}/
 }
 
-build_themes ()
+build_qomp ()
 {
-	clean_build ${builddir}
-	check_dir ${builddir}
-	get_src
-	project="qomp-themes"
-	set_theme_vars
-	get_version
-	debdir=${builddir}/${project}-${ver}
-	check_dir ${debdir}
-	cp -rf ${srcdir}/themes/* ${debdir}/
-	cd ${debdir}
+	prepare_qt4
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
 	prepare_specs
 	cd ${debdir}
 	build_deb
 	check_dir ${exitdir}
+	check_dir ${exitdir}/dev
 	cp -f ${builddir}/*.deb	${exitdir}/
+	cp -f ${builddir}/*.dsc	${exitdir}/dev/
+	cp -f ${builddir}/*.tar.gz	${exitdir}/dev/
+
+}
+
+check_qt_deps()
+{
+	if [ $1 -e 4 ]; then
+		check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
+	else
+		check_deps "debhelper cdbs qtmultimedia5-dev qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
+	fi
+}
+
+build_qomp_qt5 ()
+{
+	prepare_qt5
+	check_dir ${debdir}/debian
+	cd ${debdir}/debian
+	prepare_specs
+	cd ${debdir}
+	build_deb
+	check_dir ${exitdir}
+	check_dir ${exitdir}/dev
+	cp -f ${builddir}/*.deb	${exitdir}/
+	cp -f ${builddir}/*.dsc	${exitdir}/dev/
+	cp -f ${builddir}/*.tar.gz	${exitdir}/dev/
+}
+
+build_qomp_ppa()
+{
+	prepare_qt5
+	check_dir ${debdir}/debian
+	cd ${debdir}/debian
+	prepare_specs ppa
+	cd ${debdir}
+	build_deb ppa
+	check_dir ${develdir}
+	cp -f ${builddir}/*.deb	${develdir}/
+	cp -f ${builddir}/*.dsc	${develdir}/
+	cp -f ${builddir}/*.tar.gz	${develdir}/
+	cp -f ${builddir}/*.changes	${develdir}/
+	cp -f ${builddir}/${project}_${ver}.orig.tar.gz	${develdir}/
+	echo -e "${blue}Do you want to upload builded package to PPA?[y/n(default)]"
+	read choose
+	if [ "${choose}" == "y" ]; then
+		cd ${develdir}
+		changesfile=$(ls|grep .changes)
+		dput ppa:qomp/ppa "${changesfile}"
+	fi
+}
+
+set_commit()
+{
+	curr_d=$(pwd)
+	print_int_menu()
+	{
+		echo -e "${blue}Select action to do:${nocolor}
+${pink}[1]${nocolor} - View commits${nocolor}
+${pink}[2]${nocolor} - Enter commit number${nocolor}
+${pink}[0]${nocolor} - Exit from this menu"
+	}
+	print_log()
+	{
+		commits=$(cd ${projectdir}; git log --pretty=oneline --abbrev-commit)
+		echo -e "${commits}"
+	}
+	enter_number()
+	{
+		read ccommit
+		if [ ! -z "${ccommit}" ]; then
+			cd ${projectdir}
+			git checkout ${ccommit}
+			git submodule update
+		fi
+	}
+	exit_menu()
+	{
+		intloop=0
+	}
+	choose_int_action()
+	{
+		read choose
+		case ${choose} in
+		"1" ) print_log;;
+		"2" ) enter_number;;
+		"0" ) exit_menu;;
+	esac
+	}
+	intloop=1
+	while [ ${intloop} = 1 ]
+	do
+		print_int_menu
+		choose_int_action
+	done
 }
 
 build_i386 ()
@@ -434,10 +499,11 @@ check_deps()
 print_menu ()
 {
 	echo -e "${blue}Choose action TODO!${nocolor}
-${pink}[1]${nocolor} - Build qomp debian package
-${pink}[2]${nocolor} - Build qomp-themes debian package
+${pink}[1]${nocolor} - Build qomp debian package (Qt5)
+${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build qomp debian package with Qt4
 ${pink}[4]${nocolor} - Remove all sources
+${pink}[5]${nocolor} - Build packages for PPA
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -446,11 +512,12 @@ choose_action ()
 	read vibor
 	case ${vibor} in
 		"1" ) build_qomp_qt5;;
-		"2" ) build_themes;;
+		"2" ) set_commit;;
 		"3" ) build_qomp;;
 		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
 		"12" ) prepare_pbuilder;;
 		"4" ) rm_all;;
+		"5" ) build_qomp_ppa;;
 		"0" ) quit;;
 	esac
 }
