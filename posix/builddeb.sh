@@ -271,20 +271,9 @@ ${pprefix}/share/icons/hicolor/64x64/apps
 ${pprefix}/share/icons/hicolor/32x32/apps
 ${pprefix}/share/applications
 ${pprefix}/share/qomp
+${pprefix}/share/qomp/themes
 ${pprefix}/share/qomp/translations"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=OFF"
-}
-
-set_theme_vars()
-{
-	builddep="debhelper (>= 7), cdbs, qtbase5-dev"
-	addit="#"
-	depends="\${shlibs:Depends}, \${misc:Depends}, qomp (>=1.0)"
-	description="Quick(Qt) Online Music Player Themes"
-	descriptionlong='Themes for Quick(Qt) Online Music Player.'
-	dirs="${pprefix}/share/qomp
-${pprefix}/share/qomp/themes"
-	changelogtext="  * Upstream updated"
 }
 
 get_changelog ()
