@@ -251,15 +251,15 @@ set_vars ()
 	addit="#"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.
-main features:
-* search and play music from several online music hostings (Yande.Music, myzuka.ru, pleer.com);
-* play music from local filesystem;
-* Last.fm scrobbling;
-* MPRIS support(Linux only);
-* System tray integration;
-* proxy-server support;
-* playlists support;
-* crossplatform (Windows, OS X, Linux, Android).'
+ main features:
+ * search and play music from several online music hostings (Yande.Music, myzuka.ru, pleer.com);
+ * play music from local filesystem;
+ * Last.fm scrobbling;
+ * MPRIS support(Linux only);
+ * System tray integration;
+ * proxy-server support;
+ * playlists support;
+ * crossplatform (Windows, OS X, Linux, Android).'
 	docfiles="README"
 	
 	dirs="${pprefix}/bin
@@ -369,7 +369,7 @@ build_qomp ()
 
 check_qt_deps()
 {
-	if [ $1 -e 4 ]; then
+	if [ "$1" == "4" ]; then
 		check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
 	else
 		check_deps "debhelper cdbs qtmultimedia5-dev qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
@@ -428,6 +428,8 @@ ${pink}[0]${nocolor} - Exit from this menu"
 	{
 		commits=$(cd ${projectdir}; git log --pretty=oneline --abbrev-commit)
 		echo -e "${commits}"
+		echo -e ""
+		echo -e "Current commit $(cd ${projectdir}; git rev-parse --short HEAD)"
 	}
 	enter_number()
 	{
