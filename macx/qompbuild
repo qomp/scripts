@@ -52,7 +52,6 @@ CUE_PATH=${QOMP_DIR}/libcue
 
 # official repository
 GIT_REPO="https://github.com/qomp/qomp.git"
-THEMES_REPO="https://github.com/qomp/themes.git" 
 
 
 export PATH="$QTDIR/bin:$PATH"
@@ -133,11 +132,6 @@ prepare_workspace() {
 		fetch_sources
 	fi
 
-	if [ ! -d "${QOMP_DIR}/themes" ]
-	then
-		fetch_themes
-	fi
-
 	rm -rf "${QOMP_DIR}"/build
 
 	[ -d "${QOMP_DIR}"/build ] && die "can't delete old build directory ${QOMP_DIR}/build"
@@ -182,26 +176,16 @@ fetch_sources() {
 	cd "${QOMP_DIR}"
 }
 
-fetch_themes() {
-	log "Fetch themes..."
-	cd "${QOMP_DIR}"
-	git clone ${THEMES_REPO}
-}
-
 prepare_sources() {
 	log "Exporting sources..."
 
 	cd "${QOMP_DIR}"/qomp
 	git pull
+	git submodule init
 	git submodule update
-
-	cd "${QOMP_DIR}"/themes
-	git pull
 
 	cd "${QOMP_DIR}"
 	cp -a "qomp/" "build/"
-
-	cp -a "themes/" "build/themes/"	
 }
 
 src_compile() {
@@ -214,9 +198,6 @@ src_compile() {
 	$QMAKE "CONFIG+=release" "CUE_PATH=${CUE_PATH}"	
 
 	$MAKE $MAKEOPT || die "make failed"
-
-	cd "themes/"
-	$QMAKE
 }
 
 copy_resources() {	
