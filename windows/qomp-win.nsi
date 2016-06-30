@@ -36,6 +36,9 @@ SetCompressor LZMA
 LangString 	ConfirmRemove		 ${LANG_ENGLISH}	"${APPNAME} is already installed.$\nDo you want to remove previous version?"
 LangString 	ConfirmRemove		 ${LANG_RUSSIAN}	"${APPNAME} уже установлен.$\nВы хотите удалить предыдущую версию?"
 
+LangString 	OpenWith		 ${LANG_ENGLISH}	"Open with ${APPNAME}"
+LangString 	OpenWith		 ${LANG_RUSSIAN}	"Открыть с помощью ${APPNAME}"
+
 Section "qomp" Section1
 
 	; Set Section properties
@@ -65,6 +68,7 @@ Section "qomp" Section1
 	File "qomp\libtag.dll"
 	File "qomp\libcue.dll"
 	File "qomp\zlib1.dll"
+	File "qomp\qomp-file.ico"
 	SetOutPath "$INSTDIR\audio\"
 	File "qomp\audio\qtaudio_windows.dll"
 	SetOutPath "$INSTDIR\bearer\"
@@ -139,9 +143,10 @@ Section -FinishSection
 	WriteRegStr HKCR ".cue\OpenWithProgids" "${APPNAME}" ""
 	WriteRegStr HKCR ".flac\OpenWithProgids" "${APPNAME}" ""
 	
-	WriteRegStr HKCR "${APPNAME}" "" "${APPNAME}"
+	WriteRegStr HKCR "${APPNAME}" "" "${APPNAME} media file"
+	WriteRegStr HKCR "${APPNAME}\Shell\open" "" "$(OpenWith)"
 	WriteRegStr HKCR "${APPNAME}\Shell\open\command" "" '"$INSTDIR\qomp.exe" "%1"'
-	WriteRegStr HKCR "${APPNAME}\DefaultIcon" "" "$INSTDIR\${APPNAME}.exe,0"
+	WriteRegStr HKCR "${APPNAME}\DefaultIcon" "" "$INSTDIR\qomp-file.ico"
 	
 	WriteRegStr HKCR "Applications\${APPNAME}.exe" "FriendlyAppName" "qomp media player"
 	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".mp3" ""
@@ -193,6 +198,7 @@ Section Uninstall
 	Delete "$INSTDIR\libtag.dll"
 	Delete "$INSTDIR\libcue.dll"
 	Delete "$INSTDIR\zlib1.dll"
+	Delete "$INSTDIR\qomp-file.ico"
 	Delete "$INSTDIR\audio\qtaudio_windows.dll"
 	Delete "$INSTDIR\bearer\qgenericbearer.dll"
 	Delete "$INSTDIR\bearer\qnativewifibearer.dll"
