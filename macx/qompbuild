@@ -288,6 +288,8 @@ copy_resources() {
 	themes_bundl_dir="$contentsdir/Themes"
 	mkdir "$themes_bundl_dir"
 	cp -f "${QOMP_DIR}/build/themes/themes.rcc" "$themes_bundl_dir"
+
+	cp -f "${QOMP_DIR}/build/src/icons/qomp-file.icns" "$contentsdir/Resources"
 }
 
 make_bundle() {
