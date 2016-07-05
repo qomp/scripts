@@ -9,7 +9,7 @@ then
 	rm -r -f ${rpmbuild_dir}
 fi
 mkdir -p ${rpmbuild_dir}
-svndir=${builddir}/${progname}
+qompdir=${builddir}/${progname}
 if [ ! -d ${homedir}/rpmbuild ]
 then
 	cd ${homedir}
@@ -18,21 +18,21 @@ then
 fi
 srcpath=${homedir}/rpmbuild/SOURCES
 cd $homedir
-if [ ! -d "${svndir}" ]
+if [ ! -d "${qompdir}" ]
 then
-	git clone https://github.com/qomp/qomp.git ${svndir}
-	cd ${svndir}
+	git clone https://github.com/qomp/qomp.git ${qompdir}
+	cd ${qompdir}
 	git submodule init
 	git submodule update
 else
-	cd ${svndir}
+	cd ${qompdir}
 	git reset --hard
 	git pull
 	git submodule update
 	git pull
 fi
 cd ${homedir}
-defines=${svndir}/libqomp/src/defines.h
+defines=${qompdir}/libqomp/src/defines.h
 ver=$(grep -e '[^_]APPLICATION_VERSION' $defines | cut -d '"' -f 2 | sed "s/\s/_/")
 package_name=${progname}-${ver}.tar.gz
 tmpbuilddir=${rpmbuild_dir}/${progname}-${ver}
@@ -41,7 +41,13 @@ then
 	rm -rf ${tmpbuilddir}
 fi
 mkdir -p ${tmpbuilddir}
-cp -rf ${svndir}/* ${tmpbuilddir}/
+#cp -rf ${qompdir}/* ${tmpbuilddir}/
+git archive --format=tar HEAD | ( cd ${tmpbuilddir} ; tar xf - )
+(
+export ddir=${tmpbuilddir}
+	git submodule foreach "( git archive --format=tar HEAD ) \
+	| ( cd \"${ddir}/\${path}\" ; tar xf - )"
+)
 cd ${rpmbuild_dir}
 tar -pczf ${package_name} ${progname}-${ver}
 cat <<END >${homedir}/rpmbuild/SPECS/${progname}.spec
@@ -82,6 +88,7 @@ mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
 mkdir -p %{buildroot}/usr/share/$progname/plugins
+mkdir -p %{buildroot}/usr/share/$progname/themes
 mkdir -p %{buildroot}/usr/share/$progname/translations
 
 if [ "%{_target_cpu}" = "x86_64" ] && [ -d "/usr/lib64" ]; then
@@ -107,6 +114,7 @@ fi
 %{_datadir}/icons/hicolor/128x128/apps/
 %{_datadir}/$progname/translations
 %{_datadir}/$progname/plugins
+%{_datadir}/$progname/themes
 END
 cp -f ${package_name} ${srcpath}
 cd ${homedir}/rpmbuild/SPECS
