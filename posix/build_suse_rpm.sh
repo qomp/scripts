@@ -61,7 +61,7 @@ License: GPL-2
 Group: Applications/Sound
 URL: http://qomp.sourceforge.net/
 Source0: $package_name
-BuildRequires: gcc-c++, zlib-devel, cmake
+BuildRequires: gcc-c++, zlib-devel, cmake, libcue-devel, libtag-deve, libqt5-qttools-devel, libqt5-qtbase-devel
 %{!?_without_freedesktop:BuildRequires: desktop-file-utils}
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build
@@ -79,7 +79,9 @@ Quick(Qt) Online Music Player
 %install
 [ "%{buildroot}" != "/"] && rm -rf %{buildroot}
 
-%{__make} install DEST="%{buildroot}"
+cd build
+
+%{__make} install DESTDIR="%{buildroot}"
 
 mkdir -p %{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/share/applications
