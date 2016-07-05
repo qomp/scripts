@@ -28,6 +28,7 @@ else
 	cd ${qompdir}
 	git reset --hard
 	git pull
+	git submodule init
 	git submodule update
 	git pull
 fi
@@ -42,6 +43,7 @@ then
 fi
 mkdir -p ${tmpbuilddir}
 #cp -rf ${qompdir}/* ${tmpbuilddir}/
+cd ${qompdir}
 git archive --format=tar HEAD | ( cd ${tmpbuilddir} ; tar xf - )
 (
 export ddir=${tmpbuilddir}
@@ -59,7 +61,7 @@ License: GPL-2
 Group: Applications/Sound
 URL: http://qomp.sourceforge.net/
 Source0: $package_name
-BuildRequires: gcc-c++, zlib-devel, phonon-devel
+BuildRequires: gcc-c++, zlib-devel, cmake
 %{!?_without_freedesktop:BuildRequires: desktop-file-utils}
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build
@@ -71,13 +73,13 @@ Quick(Qt) Online Music Player
 %setup
 
 %build
-qmake PREFIX=${PREFIX}
+%cmake -DCMAKE_INSTALL_PREFIX=${PREFIX}
 %{__make} %{?_smp_mflags}
 
 %install
 [ "%{buildroot}" != "/"] && rm -rf %{buildroot}
 
-%{__make} install INSTALL_ROOT="%{buildroot}"
+%{__make} install DEST="%{buildroot}"
 
 mkdir -p %{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/share/applications
@@ -87,7 +89,6 @@ mkdir -p %{buildroot}/usr/share/icons/hicolor/32x32/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/48x48/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/64x64/apps
 mkdir -p %{buildroot}/usr/share/icons/hicolor/128x128/apps
-mkdir -p %{buildroot}/usr/share/$progname/plugins
 mkdir -p %{buildroot}/usr/share/$progname/themes
 mkdir -p %{buildroot}/usr/share/$progname/translations
 
@@ -113,7 +114,6 @@ fi
 %{_datadir}/icons/hicolor/64x64/apps/
 %{_datadir}/icons/hicolor/128x128/apps/
 %{_datadir}/$progname/translations
-%{_datadir}/$progname/plugins
 %{_datadir}/$progname/themes
 END
 cp -f ${package_name} ${srcpath}

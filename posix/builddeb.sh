@@ -140,8 +140,14 @@ build_deb ()
 #
 prepare_specs ()
 {
+oldoscodname=${oscodename}
 if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
 	versuffix="${ver}-0ubuntu1~0ppa${build_count}~${oscodename}"
+	echo -e "${pink}Set codename of Ubuntu. [default:${nocolor}${green}${oscodename}${nocolor}${pink}]${nocolor}"
+	read oscode
+	if [ ! -z "${oscode}" ]; then
+		oscodename=${oscode}
+	fi
 else
 	versuffix="${ver}-${build_count}"
 fi
@@ -242,6 +248,7 @@ CXXFLAGS=-O2 -pthread
 	echo "${control}" > control
 	echo "${copyright}" > copyright
 	echo "${dirs}" > dirs
+	oscodename=${oldoscodname}
 }
 #
 
@@ -453,8 +460,19 @@ ${pink}[0]${nocolor} - Exit from this menu"
 
 build_i386 ()
 {
+	oldcodename=${oscodename}
 	get_version
 	targetarch=i386
+	echo -e "${blue}Set Codename of Ubuntu [default:${nocolor}${green}${oscodename}${nocolor}${blue}]${nocolor}"
+	read newcodename
+	if [ ! -z "${newcodename}" ]; then
+		oscodename=${newcodename}
+	fi
+	echo -e "${blue}Set Architecture of Ubuntu [default:${nocolor}${green}${targetarch}${nocolor}${blue}]${nocolor}"
+	read newarch
+	if [ ! -z "${newarch}" ]; then
+		targetarch=${newarch}
+	fi
 	if [ ! -f "${homedir}/pbuilder/${oscodename}-${targetarch}-base.tgz" ]; then
 		prepare_pbuilder
 	fi
@@ -468,7 +486,9 @@ build_i386 ()
 
 prepare_pbuilder ()
 {
-	targetarch=i386
+	if [ -z "${targetarch}" ]; then
+		targetarch=i386
+	fi
 	pbuilder-dist ${oscodename} ${targetarch} create
 }
 
@@ -497,7 +517,7 @@ ${pink}[1]${nocolor} - Build qomp debian package (Qt5)
 ${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
-${pink}[5]${nocolor} - Build qomp debian package (Qt5-i386)
+${pink}[5]${nocolor} - Build qomp deb-package for another Ubuntu (Qt5)
 ${pink}[0]${nocolor} - Exit"
 }
 
