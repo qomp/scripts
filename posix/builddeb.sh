@@ -507,7 +507,7 @@ choose_action ()
 	case ${vibor} in
 		"1" ) build_qomp_qt5;;
 		"2" ) set_commit;;
-		"5" ) build_qomp;;
+		"11" ) build_qomp;;
 		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
 		"12" ) prepare_pbuilder;;
 		"4" ) rm_all;;
