@@ -497,7 +497,7 @@ ${pink}[1]${nocolor} - Build qomp debian package (Qt5)
 ${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
-${pink}[5]${nocolor} - Build qomp debiam package (Qt5-i386)
+${pink}[5]${nocolor} - Build qomp debian package (Qt5-i386)
 ${pink}[0]${nocolor} - Exit"
 }
 
