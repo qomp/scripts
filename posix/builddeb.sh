@@ -143,7 +143,7 @@ prepare_specs ()
 if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
 	versuffix="${ver}-0ubuntu1~0ppa${build_count}~${oscodename}"
 else
-	versuffix="${ver}-0ubuntu${build_count}"
+	versuffix="${ver}-${build_count}"
 fi
 changelog="${project} (${versuffix}) ${oscodename}; urgency=low
 
@@ -329,7 +329,7 @@ prepare_qt5()
 	set_vars
 	project="qomp"
 	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
 	get_version
 	get_changelog
@@ -361,7 +361,7 @@ check_qt_deps()
 	if [ "$1" == "4" ]; then
 		check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
 	else
-		check_deps "debhelper cdbs qtmultimedia5-dev qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
+		check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
 	fi
 }
 
@@ -455,19 +455,21 @@ build_i386 ()
 {
 	get_version
 	targetarch=i386
+	if [ ! -f "${homedir}/pbuilder/${oscodename}-${targetarch}-base.tgz" ]; then
+		prepare_pbuilder
+	fi
 	nameprefix=${project}_${ver}-${build_count}
 	dscfile=${builddir}/${nameprefix}.dsc
-	srcfile=${builddir}/${nameprefix}.tar.gz
-	if [ -f "${dscfile}" ] && [ -f "${srcfile}" ]; then
-		sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --build ${dscfile}
-		cp -f /var/cache/pbuilder/${oscodename}-${targetarch}/result/${nameprefix}_${targetarch}.deb ${exitdir}/
+	if [ -f "${dscfile}" ]; then
+		pbuilder-dist ${oscodename} ${targetarch} build ${dscfile}
+		cp -f ${homedir}/pbuilder/${oscodename}-${targetarch}_result/${nameprefix}_${targetarch}.deb ${exitdir}/
 	fi
 }
 
 prepare_pbuilder ()
 {
 	targetarch=i386
-	sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --create
+	pbuilder-dist ${oscodename} ${targetarch} create
 }
 
 check_deps()
@@ -495,6 +497,7 @@ ${pink}[1]${nocolor} - Build qomp debian package (Qt5)
 ${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
+${pink}[5]${nocolor} - Build qomp debiam package (Qt5-i386)
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -505,7 +508,7 @@ choose_action ()
 		"1" ) build_qomp_qt5;;
 		"2" ) set_commit;;
 		"5" ) build_qomp;;
-		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
+		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
 		"12" ) prepare_pbuilder;;
 		"4" ) rm_all;;
 		"3" ) build_qomp_ppa;;
