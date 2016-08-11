@@ -7,18 +7,21 @@ rpmbuild_dir=${builddir}/build_${progname}
 #Basic build dependencies (SUSE)
 builddeps="gcc-c++, zlib-devel, cmake, libcue-devel, libtag-deve, libqt5-qttools-devel, libqt5-qtbase-devel"
 #Get OS name
-osname=$(cat /etc/os-release | grep ^NAME | cut -d = -f1)
+osname=$(cat /etc/os-release | grep ^NAME | cut -d = -f2)
 #Fedora build dependencies
 if [ "${osname}" == "Fedora" ] || [ "${osname}" == "fedora" ]; then
 	builddeps="gcc-c++, zlib-devel, cmake, libcue-devel, taglib-devel, qt5-qttools-devel, qt5-qtbase-devel, qt5-qtmultimedia-devel, qt5-qtx11extras-devel"
 fi
 #Try to install dependencies
-if [ "${osname}" == "Fedora" ] || [ "${osname}" == "fedora" ]; then
-	sudo dnf install ${builddeps}
-fi
-if [ "${osname}" == "openSUSE" ] || [ "${osname}" == "OPENSUSE" ] || [ "${osname}" == "opensuse" ]; then
-	sudo zypper in ${builddeps}
-fi
+for depitem in $builddeps; do
+	depitem=$(echo $depitem | cut -d , -f1)
+	if [ "${osname}" == "Fedora" ] || [ "${osname}" == "fedora" ]; then
+		sudo dnf install $depitem
+	fi
+	if [ "${osname}" == "openSUSE" ] || [ "${osname}" == "OPENSUSE" ] || [ "${osname}" == "opensuse" ]; then
+		sudo zypper in $depitem
+	fi
+done
 
 if [ -d "${rpmbuild_dir}" ]
 then
