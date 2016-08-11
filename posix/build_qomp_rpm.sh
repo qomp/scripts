@@ -4,6 +4,22 @@ PREFIX=/usr
 homedir=$HOME
 builddir=${homedir}/build
 rpmbuild_dir=${builddir}/build_${progname}
+#Basic build dependencies (SUSE)
+builddeps="gcc-c++, zlib-devel, cmake, libcue-devel, libtag-deve, libqt5-qttools-devel, libqt5-qtbase-devel"
+#Get OS name
+osname=$(cat /etc/os-release | grep ^NAME | cut -d = -f1)
+#Fedora build dependencies
+if [ "${osname}" == "Fedora" ] || [ "${osname}" == "fedora" ]; then
+	builddeps="gcc-c++, zlib-devel, cmake, libcue-devel, taglib-devel, qt5-qttools-devel, qt5-qtbase-devel, qt5-qtmultimedia-devel, qt5-qtx11extras-devel"
+fi
+#Try to install dependencies
+if [ "${osname}" == "Fedora" ] || [ "${osname}" == "fedora" ]; then
+	sudo dnf install ${builddeps}
+fi
+if [ "${osname}" == "openSUSE" ] || [ "${osname}" == "OPENSUSE" ] || [ "${osname}" == "opensuse" ]; then
+	sudo zypper in ${builddeps}
+fi
+
 if [ -d "${rpmbuild_dir}" ]
 then
 	rm -r -f ${rpmbuild_dir}
@@ -61,7 +77,7 @@ License: GPL-2
 Group: Applications/Sound
 URL: http://qomp.sourceforge.net/
 Source0: $package_name
-BuildRequires: gcc-c++, zlib-devel, cmake, libcue-devel, libtag-deve, libqt5-qttools-devel, libqt5-qtbase-devel
+BuildRequires: $builddeps
 %{!?_without_freedesktop:BuildRequires: desktop-file-utils}
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-build
@@ -78,8 +94,6 @@ Quick(Qt) Online Music Player
 
 %install
 [ "%{buildroot}" != "/"] && rm -rf %{buildroot}
-
-cd build
 
 %{__make} install DESTDIR="%{buildroot}"
 
@@ -107,16 +121,17 @@ fi
 %defattr(-, root, root, 0755)
 
 %{_bindir}/$progname
-%{_libdir}
-%{_datadir}/applications/
-%{_datadir}/icons/hicolor/16x16/apps/
-%{_datadir}/icons/hicolor/24x24/apps/
-%{_datadir}/icons/hicolor/32x32/apps/
-%{_datadir}/icons/hicolor/48x48/apps/
-%{_datadir}/icons/hicolor/64x64/apps/
-%{_datadir}/icons/hicolor/128x128/apps/
+%{_libdir}/lib$progname.so.1.0.0
+%{_libdir}/$progname/plugins/
+%{_datadir}/applications/$progname.desktop
+%{_datadir}/icons/hicolor/16x16/apps/$progname.png
+%{_datadir}/icons/hicolor/24x24/apps/$progname.png
+%{_datadir}/icons/hicolor/32x32/apps/$progname.png
+%{_datadir}/icons/hicolor/48x48/apps/$progname.png
+%{_datadir}/icons/hicolor/64x64/apps/$progname.png
+%{_datadir}/icons/hicolor/128x128/apps/$progname.png
 %{_datadir}/$progname/translations
-%{_datadir}/$progname/themes
+%{_datadir}/$progname/themes/themes.rcc
 END
 cp -f ${package_name} ${srcpath}
 cd ${homedir}/rpmbuild/SPECS
