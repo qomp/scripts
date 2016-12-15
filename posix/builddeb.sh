@@ -333,7 +333,7 @@ prepare_qt5()
 
 check_qt_deps()
 {
-	check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
+	check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake libqt5x11extras5-dev"
 }
 
 build_qomp_qt5 ()
