@@ -28,6 +28,7 @@ dirs=""
 CWDIR=$(pwd)
 build_count=1
 isloop=1
+isclean=1
 
 #GIT REPO URI
 qomp_git=https://github.com/qomp/qomp.git
@@ -142,12 +143,12 @@ prepare_specs ()
 {
 oldoscodname=${oscodename}
 if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
-	versuffix="${ver}-0ubuntu1~0ppa${build_count}~${oscodename}"
 	echo -e "${pink}Set codename of Ubuntu. [default:${nocolor}${green}${oscodename}${nocolor}${pink}]${nocolor}"
 	read oscode
 	if [ ! -z "${oscode}" ]; then
 		oscodename=${oscode}
 	fi
+	versuffix="${ver}-0ubuntu1~0ppa${build_count}~${oscodename}"
 else
 	versuffix="${ver}-${build_count}"
 fi
@@ -313,7 +314,9 @@ prepare_sources()
 prepare_qt5()
 {
 	check_qt_deps
-	clean_build ${builddir}
+	if [ ${isclean} -eq 1 ]; then
+		clean_build ${builddir}
+	fi
 	check_dir ${builddir}
 	get_src
 	set_vars
@@ -329,6 +332,7 @@ prepare_qt5()
 		prepare_sources ${debdir}
 	fi
 	cd ${debdir}
+	isclean=0
 }
 
 check_qt_deps()
@@ -366,13 +370,6 @@ build_qomp_ppa()
 	cp -f ${builddir}/*.diff.gz	${develdir}/
 	cp -f ${builddir}/*.build	${develdir}/
 	cp -f ${builddir}/*.changes	${develdir}/
-	echo -e "${blue}Do you want to upload builded package to PPA?[y/n(default)]"
-	read choose
-	if [ "${choose}" == "y" ]; then
-		cd ${develdir}
-		changesfile=$(ls|grep .changes)
-		dput ppa:qomp/ppa "${changesfile}"
-	fi
 }
 
 set_commit()
@@ -437,16 +434,39 @@ build_i386 ()
 	if [ ! -z "${newarch}" ]; then
 		targetarch=${newarch}
 	fi
-	if [ ! -f "${homedir}/pbuilder/${newcodename}-${targetarch}-base.tgz" ]; then
+	pbuilder_basename=${homedir}/pbuilder/${newcodename}-${targetarch}-base.tgz
+	if [ "$(uname -m)" == "x86_64" ] && [ "${targetarch}" == "amd64" ]; then
+		pbuilder_basename=${homedir}/pbuilder/${newcodename}-base.tgz
+	else
+		if [ "$(uname -m)" == "i686" ] && [ "${targetarch}" == "i386" ]; then
+			pbuilder_basename=${homedir}/pbuilder/${newcodename}-base.tgz
+		fi
+	fi
+	if [ ! -f "${pbuilder_basename}" ]; then
 		pbuilder-dist ${newcodename} ${targetarch} create
 	fi
-	dscfile=$(ls ${builddir}/ | grep .dsc)
+	currdir=$PWD
+	if [ ${isclean} -eq 1 ]; then
+		oscodename=${newcodename}
+		build_qomp_qt5
+	fi
+	cd ${builddir}
+	dscfile="$(ls | grep .dsc)"
+	cd ${currdir}
+	echo ${dscfile}
 	nameprefix=${dscfile/.dsc}
-	if [ -f "${dscfile}" ]; then
-		pbuilder-dist ${newcodename} ${targetarch} build ${dscfile}
-		cp -f ${homedir}/pbuilder/${newcodename}-${targetarch}_result/${nameprefix}_${targetarch}.deb ${exitdir}/
+	if [ -f "${builddir}/${dscfile}" ]; then
+		pbuilder-dist ${newcodename} ${targetarch} build ${builddir}/${dscfile}
+		cp -f ${pbuilder_basename/-base.tgz}_result/${nameprefix}_${targetarch}.deb ${exitdir}/
 	fi
 	oscodename=${oldcodename}
+}
+
+upload_to_lp()
+{
+	changesfile="$(cd ${develdir} && ls | grep .changes)"
+	cd ${develdir}
+	dput ppa:qomp/ppa "${develdir}/${changesfile}"
 }
 
 check_deps()
@@ -475,6 +495,8 @@ ${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
 ${pink}[5]${nocolor} - Build qomp deb-package for another Ubuntu
+${pink}[6]${nocolor} - Clean build directory
+${pink}[7]${nocolor} - Upload files to Launchpad
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -484,9 +506,11 @@ choose_action ()
 	case ${vibor} in
 		"1" ) build_qomp_qt5;;
 		"2" ) set_commit;;
-		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
-		"4" ) rm_all;;
 		"3" ) build_qomp_ppa;;
+		"4" ) rm_all;;
+		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
+		"6" ) clean_build ${builddir};;
+		"7" ) upload_to_lp;;
 		"0" ) quit;;
 	esac
 }
