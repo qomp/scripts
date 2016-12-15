@@ -254,7 +254,7 @@ CXXFLAGS=-O2 -pthread
 
 set_vars ()
 {
-	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libcue-dev, libqjson-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
 	addit="#"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.
@@ -310,32 +310,14 @@ prepare_sources()
 	tar -zcf ${project}_${ver}.orig.tar.gz *
 }
 
-prepare_qt4()
-{
-	check_qt_deps 4
-	clean_build ${builddir}
-	check_dir ${builddir}
-	get_src
-	set_vars
-	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
-	get_version
-	get_changelog
-	debdir=${builddir}/${project}-${ver}
-	check_dir ${debdir}
-	cd ${projectdir}
-	prepare_sources ${debdir}
-	cd ${debdir}
-}
-
 prepare_qt5()
 {
-	check_qt_deps 5
+	check_qt_deps
 	clean_build ${builddir}
 	check_dir ${builddir}
 	get_src
 	set_vars
 	project="qomp"
-	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
 	get_version
@@ -343,33 +325,15 @@ prepare_qt5()
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cd ${projectdir}
-	prepare_sources ${debdir}
+	if [ ! -f ${builddir}/${project}_${ver}.orig.tar.gz ]; then
+		prepare_sources ${debdir}
+	fi
 	cd ${debdir}
-}
-
-build_qomp ()
-{
-	prepare_qt4
-	check_dir ${debdir}/debian
-	cd ${debdir}/debian
-	prepare_specs
-	cd ${debdir}
-	build_deb
-	check_dir ${exitdir}
-	check_dir ${exitdir}/dev
-	cp -f ${builddir}/*.deb	${exitdir}/
-	cp -f ${builddir}/*.dsc	${exitdir}/dev/
-	cp -f ${builddir}/*.tar.gz	${exitdir}/dev/
-
 }
 
 check_qt_deps()
 {
-	if [ "$1" == "4" ]; then
-		check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
-	else
-		check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
-	fi
+	check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
 }
 
 build_qomp_qt5 ()
@@ -398,7 +362,7 @@ build_qomp_ppa()
 	build_deb ppa
 	check_dir ${develdir}
 	cp -f ${builddir}/*.dsc	${develdir}/
-	cp -f ${builddir}/*.tar.gz	${develdir}/
+	cp -f ${builddir}/*.orig.tar.gz	${develdir}/
 	cp -f ${builddir}/*.diff.gz	${develdir}/
 	cp -f ${builddir}/*.build	${develdir}/
 	cp -f ${builddir}/*.changes	${develdir}/
@@ -465,31 +429,24 @@ build_i386 ()
 	targetarch=i386
 	echo -e "${blue}Set Codename of Ubuntu [default:${nocolor}${green}${oscodename}${nocolor}${blue}]${nocolor}"
 	read newcodename
-	if [ ! -z "${newcodename}" ]; then
-		oscodename=${newcodename}
+	if [ -z "${newcodename}" ]; then
+		newcodename=${oscodename}
 	fi
 	echo -e "${blue}Set Architecture of Ubuntu [default:${nocolor}${green}${targetarch}${nocolor}${blue}]${nocolor}"
 	read newarch
 	if [ ! -z "${newarch}" ]; then
 		targetarch=${newarch}
 	fi
-	if [ ! -f "${homedir}/pbuilder/${oscodename}-${targetarch}-base.tgz" ]; then
-		prepare_pbuilder
+	if [ ! -f "${homedir}/pbuilder/${newcodename}-${targetarch}-base.tgz" ]; then
+		pbuilder-dist ${newcodename} ${targetarch} create
 	fi
-	nameprefix=${project}_${ver}-${build_count}
-	dscfile=${builddir}/${nameprefix}.dsc
+	dscfile=$(ls ${builddir}/ | grep .dsc)
+	nameprefix=${dscfile/.dsc}
 	if [ -f "${dscfile}" ]; then
-		pbuilder-dist ${oscodename} ${targetarch} build ${dscfile}
-		cp -f ${homedir}/pbuilder/${oscodename}-${targetarch}_result/${nameprefix}_${targetarch}.deb ${exitdir}/
+		pbuilder-dist ${newcodename} ${targetarch} build ${dscfile}
+		cp -f ${homedir}/pbuilder/${newcodename}-${targetarch}_result/${nameprefix}_${targetarch}.deb ${exitdir}/
 	fi
-}
-
-prepare_pbuilder ()
-{
-	if [ -z "${targetarch}" ]; then
-		targetarch=i386
-	fi
-	pbuilder-dist ${oscodename} ${targetarch} create
+	oscodename=${oldcodename}
 }
 
 check_deps()
@@ -513,11 +470,11 @@ check_deps()
 print_menu ()
 {
 	echo -e "${blue}Choose action TODO!${nocolor}
-${pink}[1]${nocolor} - Build qomp debian package (Qt5)
+${pink}[1]${nocolor} - Build qomp debian package
 ${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
-${pink}[5]${nocolor} - Build qomp deb-package for another Ubuntu (Qt5)
+${pink}[5]${nocolor} - Build qomp deb-package for another Ubuntu
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -527,9 +484,7 @@ choose_action ()
 	case ${vibor} in
 		"1" ) build_qomp_qt5;;
 		"2" ) set_commit;;
-		"11" ) build_qomp;;
 		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
-		"12" ) prepare_pbuilder;;
 		"4" ) rm_all;;
 		"3" ) build_qomp_ppa;;
 		"0" ) quit;;
