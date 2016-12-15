@@ -254,7 +254,7 @@ CXXFLAGS=-O2 -pthread
 
 set_vars ()
 {
-	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, libqt5x11extras5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
 	addit="#"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.
