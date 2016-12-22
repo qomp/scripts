@@ -1,5 +1,5 @@
-# Copyright 1999-2012 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
+# Copyright 2013-2017 Qomp team
+# Distributed under the terms of the GNU General Public License v3
 
 EAPI=5
 
@@ -25,6 +25,7 @@ DEPEND="
 	dev-qt/qtnetwork:5
 	dev-qt/qtdbus:5
 	dev-qt/qtxml:5
+	dev-qt/qtx11extras:5
 	dev-libs/openssl
 	media-libs/taglib
 	>=media-libs/libcue-1.4.0
