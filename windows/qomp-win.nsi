@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 1.1.1"
+!define APPNAMEANDVERSION "qomp 1.2"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-1.1.1-win32.exe"
+OutFile "qomp-1.2-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -47,9 +47,6 @@ Section "qomp" Section1
 
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR\"
-	File "qomp\icudt54.dll"
-	File "qomp\icuin54.dll"
-	File "qomp\icuuc54.dll"
 	File "qomp\libeay32.dll"
 	File "qomp\ssleay32.dll"
 	File "qomp\libgcc_s_dw2-1.dll"
@@ -89,7 +86,17 @@ Section "qomp" Section1
 	File "qomp\translations\qtconfig_ru.qm"
 	File "qomp\translations\qtmultimedia_ru.qm"
 	File "qomp\translations\qt_help_ru.qm"
-	File "qomp\translations\qt_ru.qm"
+	File "qomp\translations\qt_ru.qm"	
+	File "qomp\translations\qtconnectivity_ru.qm"
+	File "qomp\translations\qtdeclarative_ru.qm"
+	File "qomp\translations\qtlocation_ru.qm"
+	File "qomp\translations\qtquick1_ru.qm"
+	File "qomp\translations\qtquickcontrols_ru.qm"
+	File "qomp\translations\qtscript_ru.qm"
+	File "qomp\translations\qtserialport_ru.qm"
+	File "qomp\translations\qtwebengine_ru.qm"
+	File "qomp\translations\qtwebsockets_ru.qm"
+	File "qomp\translations\qtxmlpatterns_ru.qm"	
 	SetOutPath "$INSTDIR\plugins\"
 	File "qomp\plugins\filesystemplugin.dll"
 	File "qomp\plugins\lastfmplugin.dll"
@@ -171,9 +178,6 @@ Section Uninstall
 	ExecWait "$INSTDIR\codecs\uninstall_all.bat"
 	
 	; Clean up qomp
-	Delete "$INSTDIR\icudt54.dll"
-	Delete "$INSTDIR\icuin54.dll"
-	Delete "$INSTDIR\icuuc54.dll"
 	Delete "$INSTDIR\libeay32.dll"
 	Delete "$INSTDIR\ssleay32.dll"
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
@@ -207,7 +211,17 @@ Section Uninstall
 	Delete "$INSTDIR\translations\qtconfig_ru.qm"
 	Delete "$INSTDIR\translations\qtmultimedia_ru.qm"
 	Delete "$INSTDIR\translations\qt_help_ru.qm"
-	Delete "$INSTDIR\translations\qt_ru.qm"
+	Delete "$INSTDIR\translations\qt_ru.qm"	
+	Delete "$INSTDIR\translations\qtconnectivity_ru.qm"
+	Delete "$INSTDIR\translations\qtdeclarative_ru.qm"
+	Delete "$INSTDIR\translations\qtlocation_ru.qm"
+	Delete "$INSTDIR\translations\qtquick1_ru.qm"
+	Delete "$INSTDIR\translations\qtquickcontrols_ru.qm"
+	Delete "$INSTDIR\translations\qtscript_ru.qm"
+	Delete "$INSTDIR\translations\qtserialport_ru.qm"
+	Delete "$INSTDIR\translations\qtwebengine_ru.qm"
+	Delete "$INSTDIR\translations\qtwebsockets_ru.qm"
+	Delete "$INSTDIR\translations\qtxmlpatterns_ru.qm"	
 	Delete "$INSTDIR\plugins\filesystemplugin.dll"
 	Delete "$INSTDIR\plugins\lastfmplugin.dll"
 	Delete "$INSTDIR\plugins\myzukaruplugin.dll"
