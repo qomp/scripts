@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 1.1"
+!define APPNAMEANDVERSION "qomp 1.2"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-1.1-win32.exe"
+OutFile "qomp-1.2-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -36,6 +36,9 @@ SetCompressor LZMA
 LangString 	ConfirmRemove		 ${LANG_ENGLISH}	"${APPNAME} is already installed.$\nDo you want to remove previous version?"
 LangString 	ConfirmRemove		 ${LANG_RUSSIAN}	"${APPNAME} уже установлен.$\nВы хотите удалить предыдущую версию?"
 
+LangString 	OpenWith		 ${LANG_ENGLISH}	"Open with ${APPNAME}"
+LangString 	OpenWith		 ${LANG_RUSSIAN}	"Открыть с помощью ${APPNAME}"
+
 Section "qomp" Section1
 
 	; Set Section properties
@@ -44,9 +47,6 @@ Section "qomp" Section1
 
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR\"
-	File "qomp\icudt54.dll"
-	File "qomp\icuin54.dll"
-	File "qomp\icuuc54.dll"
 	File "qomp\libeay32.dll"
 	File "qomp\ssleay32.dll"
 	File "qomp\libgcc_s_dw2-1.dll"
@@ -62,9 +62,11 @@ Section "qomp" Section1
 	File "qomp\Qt5Network.dll"
 	File "qomp\Qt5Widgets.dll"
 	File "qomp\Qt5Xml.dll"
+	File "qomp\Qt5WinExtras.dll"
 	File "qomp\libtag.dll"
-	File "qomp\libcue.dll"
+	File "qomp\cue.dll"
 	File "qomp\zlib1.dll"
+	File "qomp\qomp-file.ico"
 	SetOutPath "$INSTDIR\audio\"
 	File "qomp\audio\qtaudio_windows.dll"
 	SetOutPath "$INSTDIR\bearer\"
@@ -75,8 +77,6 @@ Section "qomp" Section1
 	File "qomp\mediaservice\qtmedia_audioengine.dll"
 	SetOutPath "$INSTDIR\platforms\"
 	File "qomp\platforms\qwindows.dll"
-	SetOutPath "$INSTDIR\playlistformats\"
-	File "qomp\playlistformats\qtmultimedia_m3u.dll"
 	SetOutPath "$INSTDIR\imageformats\"
 	File "qomp\imageformats\qgif.dll"
 	File "qomp\imageformats\qjpeg.dll"
@@ -84,14 +84,19 @@ Section "qomp" Section1
 	File "qomp\translations\qomp_ru.qm"
 	File "qomp\translations\qtbase_ru.qm"
 	File "qomp\translations\qtconfig_ru.qm"
-	File "qomp\translations\qtdeclarative_ru.qm"
 	File "qomp\translations\qtmultimedia_ru.qm"
+	File "qomp\translations\qt_help_ru.qm"
+	File "qomp\translations\qt_ru.qm"	
+	File "qomp\translations\qtconnectivity_ru.qm"
+	File "qomp\translations\qtdeclarative_ru.qm"
+	File "qomp\translations\qtlocation_ru.qm"
 	File "qomp\translations\qtquick1_ru.qm"
 	File "qomp\translations\qtquickcontrols_ru.qm"
 	File "qomp\translations\qtscript_ru.qm"
-	File "qomp\translations\qtxmlpatterns_ru.qm"
-	File "qomp\translations\qt_help_ru.qm"
-	File "qomp\translations\qt_ru.qm"
+	File "qomp\translations\qtserialport_ru.qm"
+	File "qomp\translations\qtwebengine_ru.qm"
+	File "qomp\translations\qtwebsockets_ru.qm"
+	File "qomp\translations\qtxmlpatterns_ru.qm"	
 	SetOutPath "$INSTDIR\plugins\"
 	File "qomp\plugins\filesystemplugin.dll"
 	File "qomp\plugins\lastfmplugin.dll"
@@ -139,9 +144,10 @@ Section -FinishSection
 	WriteRegStr HKCR ".cue\OpenWithProgids" "${APPNAME}" ""
 	WriteRegStr HKCR ".flac\OpenWithProgids" "${APPNAME}" ""
 	
-	WriteRegStr HKCR "${APPNAME}" "" "${APPNAME}"
+	WriteRegStr HKCR "${APPNAME}" "" "${APPNAME} media file"
+	WriteRegStr HKCR "${APPNAME}\Shell\open" "" "$(OpenWith)"
 	WriteRegStr HKCR "${APPNAME}\Shell\open\command" "" '"$INSTDIR\qomp.exe" "%1"'
-	WriteRegStr HKCR "${APPNAME}\DefaultIcon" "" "$INSTDIR\${APPNAME}.exe,0"
+	WriteRegStr HKCR "${APPNAME}\DefaultIcon" "" "$INSTDIR\qomp-file.ico"
 	
 	WriteRegStr HKCR "Applications\${APPNAME}.exe" "FriendlyAppName" "qomp media player"
 	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".mp3" ""
@@ -172,9 +178,6 @@ Section Uninstall
 	ExecWait "$INSTDIR\codecs\uninstall_all.bat"
 	
 	; Clean up qomp
-	Delete "$INSTDIR\icudt54.dll"
-	Delete "$INSTDIR\icuin54.dll"
-	Delete "$INSTDIR\icuuc54.dll"
 	Delete "$INSTDIR\libeay32.dll"
 	Delete "$INSTDIR\ssleay32.dll"
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
@@ -190,29 +193,35 @@ Section Uninstall
 	Delete "$INSTDIR\Qt5Network.dll"
 	Delete "$INSTDIR\Qt5Widgets.dll"
 	Delete "$INSTDIR\Qt5Xml.dll"
+	Delete "$INSTDIR\Qt5WinExtras.dll"
 	Delete "$INSTDIR\libtag.dll"
-	Delete "$INSTDIR\libcue.dll"
+	Delete "$INSTDIR\cue.dll"
 	Delete "$INSTDIR\zlib1.dll"
+	Delete "$INSTDIR\qomp-file.ico"
 	Delete "$INSTDIR\audio\qtaudio_windows.dll"
 	Delete "$INSTDIR\bearer\qgenericbearer.dll"
 	Delete "$INSTDIR\bearer\qnativewifibearer.dll"
 	Delete "$INSTDIR\mediaservice\dsengine.dll"
 	Delete "$INSTDIR\mediaservice\qtmedia_audioengine.dll"
 	Delete "$INSTDIR\platforms\qwindows.dll"
-	Delete "$INSTDIR\playlistformats\qtmultimedia_m3u.dll"
 	Delete "$INSTDIR\imageformats\qgif.dll"
 	Delete "$INSTDIR\imageformats\qjpeg.dll"
 	Delete "$INSTDIR\translations\qomp_ru.qm"
 	Delete "$INSTDIR\translations\qtbase_ru.qm"
 	Delete "$INSTDIR\translations\qtconfig_ru.qm"
-	Delete "$INSTDIR\translations\qtdeclarative_ru.qm"
 	Delete "$INSTDIR\translations\qtmultimedia_ru.qm"
+	Delete "$INSTDIR\translations\qt_help_ru.qm"
+	Delete "$INSTDIR\translations\qt_ru.qm"	
+	Delete "$INSTDIR\translations\qtconnectivity_ru.qm"
+	Delete "$INSTDIR\translations\qtdeclarative_ru.qm"
+	Delete "$INSTDIR\translations\qtlocation_ru.qm"
 	Delete "$INSTDIR\translations\qtquick1_ru.qm"
 	Delete "$INSTDIR\translations\qtquickcontrols_ru.qm"
 	Delete "$INSTDIR\translations\qtscript_ru.qm"
-	Delete "$INSTDIR\translations\qtxmlpatterns_ru.qm"
-	Delete "$INSTDIR\translations\qt_help_ru.qm"
-	Delete "$INSTDIR\translations\qt_ru.qm"
+	Delete "$INSTDIR\translations\qtserialport_ru.qm"
+	Delete "$INSTDIR\translations\qtwebengine_ru.qm"
+	Delete "$INSTDIR\translations\qtwebsockets_ru.qm"
+	Delete "$INSTDIR\translations\qtxmlpatterns_ru.qm"	
 	Delete "$INSTDIR\plugins\filesystemplugin.dll"
 	Delete "$INSTDIR\plugins\lastfmplugin.dll"
 	Delete "$INSTDIR\plugins\myzukaruplugin.dll"
@@ -233,7 +242,6 @@ Section Uninstall
 
 	; Remove remaining directories
 	RMDir "$INSTDIR\translations\"
-	RMDir "$INSTDIR\playlistformats\"
 	RMDir "$INSTDIR\platforms\"
 	RMDir "$INSTDIR\mediaservice\"
 	RMDir "$INSTDIR\imageformats\"

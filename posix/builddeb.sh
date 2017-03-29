@@ -28,6 +28,7 @@ dirs=""
 CWDIR=$(pwd)
 build_count=1
 isloop=1
+isclean=1
 
 #GIT REPO URI
 qomp_git=https://github.com/qomp/qomp.git
@@ -140,10 +141,16 @@ build_deb ()
 #
 prepare_specs ()
 {
+oldoscodname=${oscodename}
 if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
+	echo -e "${pink}Set codename of Ubuntu. [default:${nocolor}${green}${oscodename}${nocolor}${pink}]${nocolor}"
+	read oscode
+	if [ ! -z "${oscode}" ]; then
+		oscodename=${oscode}
+	fi
 	versuffix="${ver}-0ubuntu1~0ppa${build_count}~${oscodename}"
 else
-	versuffix="${ver}-0ubuntu${build_count}"
+	versuffix="${ver}-${build_count}"
 fi
 changelog="${project} (${versuffix}) ${oscodename}; urgency=low
 
@@ -242,12 +249,13 @@ CXXFLAGS=-O2 -pthread
 	echo "${control}" > control
 	echo "${copyright}" > copyright
 	echo "${dirs}" > dirs
+	oscodename=${oldoscodname}
 }
 #
 
 set_vars ()
 {
-	builddep="debhelper (>= 7), cdbs, libqt4-dev, libphonon-dev, libphononexperimental-dev, libtag1-dev, libcue-dev, libqjson-dev, pkg-config, cmake"
+	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, libqt5x11extras5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
 	addit="#"
 	description="Quick(Qt) Online Music Player"
 	descriptionlong='Quick(Qt) Online Music Player - one player for different online music hostings.
@@ -303,66 +311,33 @@ prepare_sources()
 	tar -zcf ${project}_${ver}.orig.tar.gz *
 }
 
-prepare_qt4()
-{
-	check_qt_deps 4
-	clean_build ${builddir}
-	check_dir ${builddir}
-	get_src
-	set_vars
-	depends="\${shlibs:Depends}, \${misc:Depends}, libphonon4, phonon-backend-gstreamer, libqt4-core, libqt4-gui, libqt4-dbus, libqt4-opengl, libqt4-xml, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
-	get_version
-	get_changelog
-	debdir=${builddir}/${project}-${ver}
-	check_dir ${debdir}
-	cd ${projectdir}
-	prepare_sources ${debdir}
-	cd ${debdir}
-}
-
 prepare_qt5()
 {
-	check_qt_deps 5
-	clean_build ${builddir}
+	check_qt_deps
+	if [ ${isclean} -eq 1 ]; then
+		clean_build ${builddir}
+	fi
 	check_dir ${builddir}
 	get_src
 	set_vars
 	project="qomp"
-	builddep="debhelper (>= 7), cdbs, qtmultimedia5-dev, qtbase5-dev, qttools5-dev, qttools5-dev-tools, libtag1-dev, libcue-dev, pkg-config, cmake"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
 	get_version
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
 	check_dir ${debdir}
 	cd ${projectdir}
-	prepare_sources ${debdir}
+	if [ ! -f ${builddir}/${project}_${ver}.orig.tar.gz ]; then
+		prepare_sources ${debdir}
+	fi
 	cd ${debdir}
-}
-
-build_qomp ()
-{
-	prepare_qt4
-	check_dir ${debdir}/debian
-	cd ${debdir}/debian
-	prepare_specs
-	cd ${debdir}
-	build_deb
-	check_dir ${exitdir}
-	check_dir ${exitdir}/dev
-	cp -f ${builddir}/*.deb	${exitdir}/
-	cp -f ${builddir}/*.dsc	${exitdir}/dev/
-	cp -f ${builddir}/*.tar.gz	${exitdir}/dev/
-
+	isclean=0
 }
 
 check_qt_deps()
 {
-	if [ "$1" == "4" ]; then
-		check_deps "debhelper cdbs libqt4-dev libphonon-dev libphononexperimental-dev libtag1-dev libcue-dev libqjson-dev pkg-config cmake"
-	else
-		check_deps "debhelper cdbs qtmultimedia5-dev qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake"
-	fi
+	check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake libqt5x11extras5-dev"
 }
 
 build_qomp_qt5 ()
@@ -391,17 +366,10 @@ build_qomp_ppa()
 	build_deb ppa
 	check_dir ${develdir}
 	cp -f ${builddir}/*.dsc	${develdir}/
-	cp -f ${builddir}/*.tar.gz	${develdir}/
+	cp -f ${builddir}/*.orig.tar.gz	${develdir}/
 	cp -f ${builddir}/*.diff.gz	${develdir}/
 	cp -f ${builddir}/*.build	${develdir}/
 	cp -f ${builddir}/*.changes	${develdir}/
-	echo -e "${blue}Do you want to upload builded package to PPA?[y/n(default)]"
-	read choose
-	if [ "${choose}" == "y" ]; then
-		cd ${develdir}
-		changesfile=$(ls|grep .changes)
-		dput ppa:qomp/ppa "${changesfile}"
-	fi
 }
 
 set_commit()
@@ -453,21 +421,52 @@ ${pink}[0]${nocolor} - Exit from this menu"
 
 build_i386 ()
 {
+	oldcodename=${oscodename}
 	get_version
 	targetarch=i386
-	nameprefix=${project}_${ver}-${build_count}
-	dscfile=${builddir}/${nameprefix}.dsc
-	srcfile=${builddir}/${nameprefix}.tar.gz
-	if [ -f "${dscfile}" ] && [ -f "${srcfile}" ]; then
-		sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --build ${dscfile}
-		cp -f /var/cache/pbuilder/${oscodename}-${targetarch}/result/${nameprefix}_${targetarch}.deb ${exitdir}/
+	echo -e "${blue}Set Codename of Ubuntu [default:${nocolor}${green}${oscodename}${nocolor}${blue}]${nocolor}"
+	read newcodename
+	if [ -z "${newcodename}" ]; then
+		newcodename=${oscodename}
 	fi
+	echo -e "${blue}Set Architecture of Ubuntu [default:${nocolor}${green}${targetarch}${nocolor}${blue}]${nocolor}"
+	read newarch
+	if [ ! -z "${newarch}" ]; then
+		targetarch=${newarch}
+	fi
+	pbuilder_basename=${homedir}/pbuilder/${newcodename}-${targetarch}-base.tgz
+	if [ "$(uname -m)" == "x86_64" ] && [ "${targetarch}" == "amd64" ]; then
+		pbuilder_basename=${homedir}/pbuilder/${newcodename}-base.tgz
+	else
+		if [ "$(uname -m)" == "i686" ] && [ "${targetarch}" == "i386" ]; then
+			pbuilder_basename=${homedir}/pbuilder/${newcodename}-base.tgz
+		fi
+	fi
+	if [ ! -f "${pbuilder_basename}" ]; then
+		pbuilder-dist ${newcodename} ${targetarch} create
+	fi
+	currdir=$PWD
+	if [ ${isclean} -eq 1 ]; then
+		oscodename=${newcodename}
+		build_qomp_qt5
+	fi
+	cd ${builddir}
+	dscfile="$(ls | grep .dsc)"
+	cd ${currdir}
+	echo ${dscfile}
+	nameprefix=${dscfile/.dsc}
+	if [ -f "${builddir}/${dscfile}" ]; then
+		pbuilder-dist ${newcodename} ${targetarch} build ${builddir}/${dscfile}
+		cp -f ${pbuilder_basename/-base.tgz}_result/${nameprefix}_${targetarch}.deb ${exitdir}/
+	fi
+	oscodename=${oldcodename}
 }
 
-prepare_pbuilder ()
+upload_to_lp()
 {
-	targetarch=i386
-	sudo DIST=${oscodename} ARCH=${targetarch} pbuilder --create
+	changesfile="$(cd ${develdir} && ls | grep .changes)"
+	cd ${develdir}
+	dput ppa:qomp/ppa "${develdir}/${changesfile}"
 }
 
 check_deps()
@@ -491,10 +490,13 @@ check_deps()
 print_menu ()
 {
 	echo -e "${blue}Choose action TODO!${nocolor}
-${pink}[1]${nocolor} - Build qomp debian package (Qt5)
+${pink}[1]${nocolor} - Build qomp debian package
 ${pink}[2]${nocolor} - Set build commit
 ${pink}[3]${nocolor} - Build packages for PPA
 ${pink}[4]${nocolor} - Remove all sources
+${pink}[5]${nocolor} - Build qomp deb-package for another Ubuntu
+${pink}[6]${nocolor} - Clean build directory
+${pink}[7]${nocolor} - Upload files to Launchpad
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -504,11 +506,11 @@ choose_action ()
 	case ${vibor} in
 		"1" ) build_qomp_qt5;;
 		"2" ) set_commit;;
-		"5" ) build_qomp;;
-		"11" ) build_i386;; #BUILD i386 VERSION WITH COWBUILDER
-		"12" ) prepare_pbuilder;;
-		"4" ) rm_all;;
 		"3" ) build_qomp_ppa;;
+		"4" ) rm_all;;
+		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
+		"6" ) clean_build ${builddir};;
+		"7" ) upload_to_lp;;
 		"0" ) quit;;
 	esac
 }

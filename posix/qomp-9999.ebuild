@@ -1,106 +1,73 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit cmake-utils git-r3
+case $PV in *9999*) VCS_ECLASS="git-r3" ;; *) VCS_ECLASS="" ;; esac
 
-IUSE="
-	qtphonon
-	gstreamer
-	+filesystemplugin
+inherit gnome2-utils xdg cmake-utils ${VCS_ECLASS}
+
+if [ -n "${VCS_ECLASS}" ]; then
+	KEYWORDS=""
+	EGIT_REPO_URI="https://github.com/qomp/qomp.git"
+	EGIT_MIN_CLONE_TYPE="single"
+else
+	KEYWORDS="amd64 ~ia64 x86"
+	SRC_URI="https://sourceforge.net/projects/qomp/files/${PV}/${PN}_${PV}_src.tar.gz"
+fi
+
+DESCRIPTION="Quick(Qt) Online Music Player - one player for different online music hostings"
+HOMEPAGE="http://sourceforge.net/projects/qomp/"
+SLOT="0"
+LICENSE="GPL-3"
+
+QOMP_PLUGINS="
 	urlplugin
 	prostopleerplugin
 	myzukaruplugin
 	notificationsplugin
 	yandexmusicplugin
 	lastfmplugin
-	themes
 	tunetofileplugin
 	mprisplugin
-	vlc
-	qt4
-	qt5
 "
+IUSE="${QOMP_PLUGINS}"
 
 DEPEND="
-	qt4? (
-		dev-qt/qtcore:4
-		dev-qt/qtdbus:4
-		dev-qt/qtgui:4
-		yandexmusicplugin? ( dev-libs/qjson )
-	)
-	qt5? (
-		dev-qt/qtcore:5
-		dev-qt/qtgui:5
-		dev-qt/qtwidgets:5
-		dev-qt/qtmultimedia:5
-		dev-qt/qtnetwork:5
-		dev-qt/qtdbus:5
-		dev-qt/qtxml:5
-	)
-	dev-libs/openssl
-	!qt5? (
-		!qtphonon? ( media-libs/phonon )
-	)
-	qtphonon? ( dev-qt/qtphonon )
-	gstreamer? ( media-libs/phonon-gstreamer )
-	vlc? ( media-libs/phonon-vlc )
+	dev-qt/qtcore:5
+	dev-qt/qtgui:5
+	dev-qt/qtwidgets:5
+	dev-qt/qtmultimedia:5[gstreamer]
+	dev-qt/qtnetwork:5[ssl]
+	dev-qt/qtdbus:5
+	dev-qt/qtxml:5
+	dev-qt/qtx11extras:5
+	dev-libs/openssl:0
 	media-libs/taglib
 	>=media-libs/libcue-1.4.0
 "
 
-REQUIRED_USE="^^ ( qt4  qt5 )"
-REQUIRED_USE="qt4? ( ^^ ( qtphonon || ( gstreamer vlc ) ) )"
-REQUIRED_USE="qt5? ( !gstreamer !vlc !qtphonon )"
-REQUIRED_USE="filesystemplugin"
-
 RDEPEND="
 	${DEPEND}
-	qt4? ( dev-qt/qtopengl:4 )
-	qt5? ( dev-qt/qtopengl:5 )
+	dev-qt/qtopengl:5
+	media-plugins/gst-plugins-libav:1.0
+	media-plugins/gst-plugins-soup:1.0
 "
 
-DESCRIPTION="Quick(Qt) Online Music Player - one player for different online music hostings"
-HOMEPAGE="http://sourceforge.net/projects/qomp/"
-EGIT_REPO_URI="https://github.com/qomp/qomp.git"
-QOMP_THEMES_URI="https://github.com/qomp/themes.git"
-EGIT_MIN_CLONE_TYPE="single"
-
-SLOT="0"
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-LICENSE="GPL-3"
-
-src_unpack() {
-	git-r3_src_unpack
-	if use themes; then
-		unset EGIT_BRANCH EGIT_COMMIT
-		EGIT_REPO_URI="${QOMP_THEMES_URI}"
-		EGIT_CHECKOUT_DIR="${WORKDIR}/${P}/themes"
-		git-r3_src_unpack
-	fi
+pkg_setup() {
+	local plugins="filesystemplugin"
+	for p in ${QOMP_PLUGINS}; do
+		use "${p}" && plugins="${plugins};${p}"
+	done
+	MYCMAKEARGS="-DBUILD_PLUGINS=${plugins}"
 }
 
+pkg_postinst() {
+	gnome2_icon_cache_update
+	xdg_pkg_postinst
+}
 
-src_configure() {
-	if use qtphonon; then
-		#cd $${WORKDIR}/${P}
-#https://raw.githubusercontent.com/qomp/scripts/master/posix/qtphonon-patch.patch
-		epatch ${FILESDIR}/qtphonon-patch.patch
-	fi
-	use filesystemplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};filesystemplugin"
-	use urlplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};urlplugin"
-	use prostopleerplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};prostopleerplugin"
-	use myzukaruplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};myzukaruplugin"
-	use notificationsplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};notificationsplugin"
-	use yandexmusicplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};yandexmusicplugin"
-	use lastfmplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};lastfmplugin"
-	use tunetofileplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};tunetofileplugin"
-	use mprisplugin && PLUGINS_FLAGS="${PLUGINS_FLAGS};mprisplugin"
-	local mycmakeargs=(
-		$(cmake-utils_use_use qt5 QT5)
-		$(cmake-utils_use_build themes THEMES)
-		$(echo -DBUILD_PLUGINS=${PLUGINS_FLAGS})
-	)
-	cmake-utils_src_configure
+pkg_postrm() {
+	gnome2_icon_cache_update
+	xdg_pkg_postrm
 }
