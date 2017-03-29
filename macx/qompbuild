@@ -4,7 +4,7 @@
 
 # Qt5 Settings
 MAC_SDK_VER=10.9
-QTDIR="${HOME}/Qt5.6.1/5.6/clang_64"
+QTDIR="${HOME}/Qt5.8.0/5.8/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
 QT_FRAMEWORKS_PREFIX="@rpath/"
@@ -42,9 +42,9 @@ QOMP_APP="qomp.app"
 GROWL_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSNWhuOW1rbV9WYmc"
 GROWL_FILE="Growl-2.0.1"
 
-TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSd3lkRmhrU2VKNkk"
-TAG_FILE="taglib-1.11"
-TAG_VER="1.16.0"
+TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSVzhWMnNYRU9Yb1k"
+TAG_FILE="taglib-1.11.1"
+TAG_VER="1.17.0"
 
 CUE_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSQjFWa0ZtdHI5Wk0"
 CUE_FILE="libcue-2.1.0"
