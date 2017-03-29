@@ -42,7 +42,7 @@ QOMP_APP="qomp.app"
 GROWL_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSNWhuOW1rbV9WYmc"
 GROWL_FILE="Growl-2.0.1"
 
-TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSVzhWMnNYRU9Yb1k"
+TAG_URL="https://drive.google.com/uc?export=download&id=0B9THQ10qg_RSWU1aMEViaDBEd2c"
 TAG_FILE="taglib-1.11.1"
 TAG_VER="1.17.0"
 
