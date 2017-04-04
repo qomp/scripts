@@ -29,6 +29,7 @@ CWDIR=$(pwd)
 build_count=1
 isloop=1
 isclean=1
+license_ver=2
 
 #GIT REPO URI
 qomp_git=https://github.com/qomp/qomp.git
@@ -185,7 +186,7 @@ License:
 
     qomp is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Free Software Foundation, either version ${license_ver} of the License, or
     (at your option) any later version.
 
     qomp is distributed in the hope that it will be useful,
@@ -210,10 +211,10 @@ License:
     files in the program, then also delete it here.
 
 On Debian systems, the complete text of the GNU General
-Public License can be found in \"/usr/share/common-licenses/GPL-3\".
+Public License can be found in \"/usr/share/common-licenses/GPL-${license_ver}\".
 
 The Debian packaging is (C) ${year} ${Maintainer},
-and is licensed under the GPL version 3, see above.
+and is licensed under the GPL version ${license_ver}, see above.
 
 Copyright 2013-2016 Khryukin Evgeny <wadealer@gmail.com>
 "
@@ -321,7 +322,7 @@ prepare_qt5()
 	get_src
 	set_vars
 	project="qomp"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, gstreamer1.0-x, gstreamer1.0-libav, gstreamer1.0-plugins-good, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
 	get_version
 	get_changelog

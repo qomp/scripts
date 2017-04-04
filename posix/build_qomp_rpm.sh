@@ -124,7 +124,7 @@ fi
 %defattr(-, root, root, 0755)
 
 %{_bindir}/$progname
-%{_libdir}/lib$progname.so.1.0.0
+%{_libdir}/lib$progname.so.$ver
 %{_libdir}/$progname/plugins/
 %{_datadir}/applications/$progname.desktop
 %{_datadir}/icons/hicolor/16x16/apps/$progname.png
