@@ -57,5 +57,5 @@ get_src
 ver=$(sed -n '/[^_]APPLICATION_VERSION/p' ${projectdir}/libqomp/src/defines.h | cut -d '"' -f 2 | sed "s/\s/-/")
 cd ${srcdir}
 echo -e "${blue}Creating tarball archive${nocolor}"
-tar -pczf ${srcdir}/qomp-${ver}.tar.gz ${exclude_cmd} qomp
-echo -e "${blue}Tarball file${nocolor} ${pink}qomp-${ver}.tar.gz${nocolor} ${blue}created in${nocolor} ${pink}${srcdir}${nocolor}"
+tar -pczf ${srcdir}/qomp_${ver}_src.tar.gz ${exclude_cmd} qomp
+echo -e "${blue}Tarball file${nocolor} ${pink}qomp_${ver}_src.tar.gz${nocolor} ${blue}created in${nocolor} ${pink}${srcdir}${nocolor}"
