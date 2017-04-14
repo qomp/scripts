@@ -54,8 +54,15 @@ fi
 cd ${homedir}
 defines=${qompdir}/libqomp/src/defines.h
 ver=$(grep -e '[^_]APPLICATION_VERSION' $defines | cut -d '"' -f 2 | sed "s/\s/_/")
-package_name=${progname}-${ver}.tar.gz
-tmpbuilddir=${rpmbuild_dir}/${progname}-${ver}
+ver_maj=$(echo $ver | cut -d "." -f1)
+ver_min=$(echo $ver | cut -d "." -f2)
+ver_patch=$(echo $ver | cut -d "." -f3)
+if [ ! "${ver_patch}" ]; then
+	ver_patch=0
+fi
+full_ver=${ver_maj}.${ver_min}.${ver_patch}
+package_name=${progname}-${full_ver}.tar.gz
+tmpbuilddir=${rpmbuild_dir}/${progname}-${full_ver}
 if [ -d "${tmpbuilddir}" ]
 then
 	rm -rf ${tmpbuilddir}
@@ -70,11 +77,11 @@ export ddir=${tmpbuilddir}
 	| ( cd \"${ddir}/\${path}\" ; tar xf - )"
 )
 cd ${rpmbuild_dir}
-tar -pczf ${package_name} ${progname}-${ver}
+tar -pczf ${package_name} ${progname}-${full_ver}
 cat <<END >${homedir}/rpmbuild/SPECS/${progname}.spec
 Summary: Quick(Qt) Online Music Player
 Name: $progname
-Version: $ver
+Version: $full_ver
 Release: 1
 License: GPL-2
 Group: Applications/Sound
@@ -124,7 +131,7 @@ fi
 %defattr(-, root, root, 0755)
 
 %{_bindir}/$progname
-%{_libdir}/lib$progname.so.$ver
+%{_libdir}/lib$progname.so.$full_ver
 %{_libdir}/$progname/plugins/
 %{_datadir}/applications/$progname.desktop
 %{_datadir}/icons/hicolor/16x16/apps/$progname.png
