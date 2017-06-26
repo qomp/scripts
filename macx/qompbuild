@@ -3,33 +3,17 @@
 #Use one of Qt settings sets
 
 # Qt5 Settings
-MAC_SDK_VER=10.9
-QTDIR="${HOME}/Qt5.8.0/5.8/clang_64"
+MAC_SDK_VER=10.12
+QTDIR="${HOME}/Qt5.9.0/5.9/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
-QT_FRAMEWORKS_PREFIX="@rpath/"
 QT_TRANS_DIR="${QTDIR}/translations"
 QT_PLUGINS_DIR="${QTDIR}/plugins"
-QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia QtMultimediaWidgets QtWidgets QtConcurrent QtPrintSupport QtOpenGL QtDBus"
+QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui QtMultimedia QtMultimediaWidgets QtWidgets QtConcurrent QtPrintSupport QtOpenGL"
 QT_FRAMEWORK_VERSION=5
 QT_PLUGINS="audio/libqtaudio_coreaudio.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib platforms/libqcocoa.dylib printsupport/libcocoaprintersupport.dylib"
 QT_PLUGINS="${QT_PLUGINS} mediaservice/libqtmedia_audioengine.dylib mediaservice/libqavfmediaplayer.dylib imageformats/libqgif.dylib imageformats/libqjpeg.dylib"
 export QMAKESPEC="macx-clang"
-
-
-
-# Qt4 Settings
-#QTDIR="/usr"
-#FRAMEWORKS_DIR="/Library/Frameworks"
-#QT_FRAMEWORKS_DIR=${FRAMEWORKS_DIR}
-#QT_FRAMEWORKS_PREFIX=""
-#QT_TRANS_DIR="/Developer/Applications/Qt/translations"
-#QT_PLUGINS_DIR="/Developer/Applications/Qt/plugins"
-#QT_FRAMEWORKS="QtCore QtNetwork QtXml QtGui phonon QtOpenGL QtDBus"
-#QT_FRAMEWORK_VERSION=4
-#QT_PLUGINS="phonon_backend/libphonon_qt7.dylib bearer/libqcorewlanbearer.dylib bearer/libqgenericbearer.dylib"
-#export QMAKESPEC="macx-g++"
-
 
 
 # OPTIONS / НАСТРОЙКИ
@@ -72,7 +56,6 @@ check_env() {
 	STAT_USER_NAME='stat -f %Su'
 	SED_INPLACE_ARG=".bak"
 
-	v=`gmake --version 2>/dev/null`
 	v=`git --version 2>/dev/null` || \
 		die "You should install Git first. / Сначала установите Git (http://git-scm.com/download)"
 
@@ -151,7 +134,8 @@ get_framework() {
 	if [ ! -f $file_name.tar.bz2 ]; then
 		log "Downloading $file_name"
 		curl -L -o $file_name.tar.bz2 $get_url || die "can't download url $get_url"
-		tar jxvf $file_name.tar.bz2 || die "can't extract file $file_name"
+		log "Extracting $file_name"
+		tar jxvf $file_name.tar.bz2 2>/dev/null || die "can't extract file $file_name"
 	fi
 
 	if [ -n "$3" ]; then
@@ -212,21 +196,11 @@ copy_resources() {
 	for f in $QT_FRAMEWORKS; do
 		cp -a ${QT_FRAMEWORKS_DIR}/$f.framework $contentsdir/Frameworks
 		cleanup_framework $contentsdir/Frameworks/$f.framework $f ${QT_FRAMEWORK_VERSION}
-
-		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}$f.framework/Versions/${QT_FRAMEWORK_VERSION}/$f" "@executable_path/../Frameworks/$f.framework/Versions/${QT_FRAMEWORK_VERSION}/$f" "$contentsdir/MacOS/qomp"
-
-		install_name_tool -id @executable_path/../Frameworks/$f.framework/Versions/${QT_FRAMEWORK_VERSION}/$f $contentsdir/Frameworks/$f.framework/$f
-		for g in $QT_FRAMEWORKS; do
-			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "@executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "$contentsdir/Frameworks/$f.framework/$f"
-		done
 	done
 
 	for p in $QT_PLUGINS; do
 		mkdir -p $contentsdir/PlugIns/$(dirname $p);
 		cp -a $QT_PLUGINS_DIR/$p $contentsdir/PlugIns/$p
-		for g in $QT_FRAMEWORKS; do
-			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "@executable_path/../Frameworks/$g.framework/Versions/${QT_FRAMEWORK_VERSION}/$g" "$contentsdir/PlugIns/$p"
-		done
 	done
 
 	qt_conf_file="$contentsdir/Resources/qt.conf"
@@ -237,9 +211,7 @@ copy_resources() {
 	cp -f "./libqomp.1.0.0.dylib" "$contentsdir/Frameworks/libqomp.1.dylib"
 	install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$contentsdir/MacOS/qomp"
 	install_name_tool -id @executable_path/../Frameworks/libqomp.1.dylib $contentsdir/Frameworks/libqomp.1.dylib
-	for f in ${QT_FRAMEWORKS}; do
-		install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$contentsdir/Frameworks/libqomp.1.dylib"
-	done
+	install_name_tool -add_rpath "@executable_path/../Frameworks"  "$contentsdir/MacOS/qomp"
 
 	for m in $MORE_FRAMEWORKS; do
 		cp -a "${FRAMEWORKS_DIR}/${m}.framework" "$contentsdir/Frameworks"
@@ -265,10 +237,6 @@ copy_resources() {
 #		done
 		
 #		install_name_tool -change "/usr/lib/tag.framework/Versions/${TAG_VER}/tag" "@executable_path/../Frameworks/tag.framework/Versions/${TAG_VER}/tag" "$app_bundle_plugins_dir/$p"
-
-		for f in ${QT_FRAMEWORKS}; do
-			install_name_tool -change "${QT_FRAMEWORKS_PREFIX}${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "@executable_path/../Frameworks/${f}.framework/Versions/${QT_FRAMEWORK_VERSION}/${f}" "$app_bundle_plugins_dir/$p"
-		done
 	done
 
 	app_bundl_tr_dir="$contentsdir/Translations"
