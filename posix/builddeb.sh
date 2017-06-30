@@ -314,6 +314,9 @@ prepare_sources()
 
 prepare_qt5()
 {
+	if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
+		isclean=0
+	fi
 	check_qt_deps
 	if [ ${isclean} -eq 1 ]; then
 		clean_build ${builddir}
@@ -358,7 +361,7 @@ build_qomp_qt5 ()
 
 build_qomp_ppa()
 {
-	prepare_qt5
+	prepare_qt5 ppa
 	clean_build ${develdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
