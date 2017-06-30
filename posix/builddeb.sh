@@ -314,8 +314,12 @@ prepare_sources()
 
 prepare_qt5()
 {
-	if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
+	echo -e "${pink}Do you want to clean previous build [y(default)/n]${nocolor}"
+	read cleanit
+	if [ "${cleanit}" == "n" ]; then
 		isclean=0
+	else
+		isclean=1
 	fi
 	check_qt_deps
 	if [ ${isclean} -eq 1 ]; then
@@ -361,7 +365,7 @@ build_qomp_qt5 ()
 
 build_qomp_ppa()
 {
-	prepare_qt5 ppa
+	prepare_qt5
 	clean_build ${develdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
@@ -425,6 +429,7 @@ ${pink}[0]${nocolor} - Exit from this menu"
 
 build_i386 ()
 {
+	check_deps "pbuilder"
 	oldcodename=${oscodename}
 	get_version
 	targetarch=i386
@@ -491,6 +496,24 @@ check_deps()
 	fi
 }
 
+print_help()
+{
+	echo -e "${blue}=== Справка: ===${nocolor}
+${green}1. Для загрузки пакета на Launchpad:${nocolor}
+   необходимо сперва подготовить пакет ${pink}[3]${nocolor},
+   а потом загрузить его ppa ${pink}[7]${nocolor}.
+   Если нужно загрузить пакет той же версии, но для другой версии системы
+   не нужно очищать файлы предыдущей сборки.
+${green}2. Для сборки пакета для другой версии системы или другой архитектуры:${nocolor}
+   Используйте команду ${pink}[5]${nocolor} и отвечайте на вопросы касательно кодового
+   имени системы и архитектуры процессора. В процессе работы команды будет установлен
+   pbuilder и содзан образ целевой системы.
+${green}3. Создание пакета другой версии:${nocolor}
+   Если необходимо создать пакет другой версии, нужно выбрать ${pink}[2]${nocolor}
+   и в подменю просмотреть существующие коммиты и указать нужный.
+"
+}
+
 print_menu ()
 {
 	echo -e "${blue}Choose action TODO!${nocolor}
@@ -501,6 +524,7 @@ ${pink}[4]${nocolor} - Remove all sources
 ${pink}[5]${nocolor} - Build qomp deb-package for another Ubuntu
 ${pink}[6]${nocolor} - Clean build directory
 ${pink}[7]${nocolor} - Upload files to Launchpad
+${pink}[8]${nocolor} - Show help information
 ${pink}[0]${nocolor} - Exit"
 }
 
@@ -515,6 +539,7 @@ choose_action ()
 		"5" ) build_i386;; #BUILD i386 VERSION WITH PBUILDER
 		"6" ) clean_build ${builddir};;
 		"7" ) upload_to_lp;;
+		"8" ) print_help;;
 		"0" ) quit;;
 	esac
 }
