@@ -331,6 +331,9 @@ prepare_qt5()
 	project="qomp"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, gstreamer1.0-x, gstreamer1.0-libav, gstreamer1.0-plugins-good, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
+	if [ -z "$1" ]; then
+		cmake_flags="${cmake_flags} -DUSE_QTCHOOSER=ON"
+	fi
 	get_version
 	get_changelog
 	debdir=${builddir}/${project}-${ver}
@@ -350,7 +353,11 @@ check_qt_deps()
 
 build_qomp_qt5 ()
 {
-	prepare_qt5
+	if [ ! -z "$1" ]; then
+		prepare_qt5 $1
+	else
+		prepare_qt5
+	fi
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
 	prepare_specs
@@ -365,7 +372,7 @@ build_qomp_qt5 ()
 
 build_qomp_ppa()
 {
-	prepare_qt5
+	prepare_qt5 ppa
 	clean_build ${develdir}
 	check_dir ${debdir}/debian
 	cd ${debdir}/debian
@@ -457,7 +464,7 @@ build_i386 ()
 	currdir=$PWD
 	if [ ${isclean} -eq 1 ]; then
 		oscodename=${newcodename}
-		build_qomp_qt5
+		build_qomp_qt5 i386
 	fi
 	cd ${builddir}
 	dscfile="$(ls | grep .dsc)"
