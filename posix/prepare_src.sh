@@ -61,3 +61,8 @@ cp -rf ${projectdir}/* ${srcdir}/qomp-${ver}
 echo -e "${blue}Creating tarball archive${nocolor}"
 tar -pczf ${srcdir}/qomp_${ver}_src.tar.gz ${exclude_cmd} qomp-${ver}
 echo -e "${blue}Tarball file${nocolor} ${pink}qomp_${ver}_src.tar.gz${nocolor} ${blue}created in${nocolor} ${pink}${srcdir}${nocolor}"
+echo -e "${blue}Cleanup...${nocolor}"
+if [ -d "${srcdir}/qomp-${ver}" ]; then
+	rm -rf ${srcdir}/qomp-${ver}
+	echo -e "${blue}Directory ${srcdir}/qomp-${ver} deleted${nocolor}"
+fi
