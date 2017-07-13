@@ -109,11 +109,15 @@ Section -FinishSection
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\App Paths\${APPNAME}.exe" "" "$INSTDIR\qomp.exe"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\App Paths\${APPNAME}.exe" "Path" "$INSTDIR"
 	
-	WriteRegStr HKCR ".mp3\OpenWithProgids" "${APPNAME}" ""
-	WriteRegStr HKCR ".wav\OpenWithProgids" "${APPNAME}" ""
-	WriteRegStr HKCR ".ogg\OpenWithProgids" "${APPNAME}" ""
-	WriteRegStr HKCR ".cue\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".mp3\OpenWithProgids"  "${APPNAME}" ""
+	WriteRegStr HKCR ".wav\OpenWithProgids"  "${APPNAME}" ""
+	WriteRegStr HKCR ".ogg\OpenWithProgids"  "${APPNAME}" ""
+	WriteRegStr HKCR ".cue\OpenWithProgids"  "${APPNAME}" ""
 	WriteRegStr HKCR ".flac\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".m3u\OpenWithProgids"  "${APPNAME}" ""
+	WriteRegStr HKCR ".m3u8\OpenWithProgids" "${APPNAME}" ""
+	WriteRegStr HKCR ".pls\OpenWithProgids"  "${APPNAME}" ""
+	WriteRegStr HKCR ".qomp\OpenWithProgids" "${APPNAME}" ""
 	
 	WriteRegStr HKCR "${APPNAME}" "" "${APPNAME} media file"
 	WriteRegStr HKCR "${APPNAME}\Shell\open" "" "$(OpenWith)"
@@ -121,11 +125,15 @@ Section -FinishSection
 	WriteRegStr HKCR "${APPNAME}\DefaultIcon" "" "$INSTDIR\qomp-file.ico"
 	
 	WriteRegStr HKCR "Applications\${APPNAME}.exe" "FriendlyAppName" "qomp media player"
-	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".mp3" ""
-	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".ogg" ""
-	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".wav" ""
-	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".cue" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".mp3"  ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".ogg"  ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".wav"  ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".cue"  ""
 	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".flac" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".m3u"  ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".m3u8" ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".pls"  ""
+	WriteRegStr HKCR "Applications\${APPNAME}.exe\SupportedTypes" ".qomp" ""
 	WriteRegStr HKCR "Applications\${APPNAME}.exe\Shell\open\command" "" '"$INSTDIR\${APPNAME}.exe" "%1"'
 
 SectionEnd
