@@ -4,7 +4,7 @@
 
 # Qt5 Settings
 MAC_SDK_VER=10.12
-QTDIR="${HOME}/Qt5.9.0/5.9/clang_64"
+QTDIR="${HOME}/Qt5.9.2/5.9.2/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
 QT_TRANS_DIR="${QTDIR}/translations"
