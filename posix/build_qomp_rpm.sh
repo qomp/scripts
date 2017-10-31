@@ -53,7 +53,7 @@ else
 fi
 cd ${homedir}
 defines=${qompdir}/libqomp/src/defines.h
-ver=$(grep -e '[^_]APPLICATION_VERSION' $defines | cut -d '"' -f 2 | sed "s/\s/_/")
+ver=$(grep -o -P "(?<=[^_]APPLICATION_VERSION\s\")[^\s]*(?=\")" $defines)
 ver_maj=$(echo $ver | cut -d "." -f1)
 ver_min=$(echo $ver | cut -d "." -f2)
 ver_patch=$(echo $ver | cut -d "." -f3)

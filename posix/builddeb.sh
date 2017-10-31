@@ -282,7 +282,7 @@ ${pprefix}/share/applications
 ${pprefix}/share/qomp
 ${pprefix}/share/qomp/themes
 ${pprefix}/share/qomp/translations"
-	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=OFF"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 }
 
 get_changelog ()
@@ -295,7 +295,7 @@ get_changelog ()
 
 get_version()
 {
-	ver=$(sed -n '/[^_]APPLICATION_VERSION/p' ${projectdir}/libqomp/src/defines.h | cut -d '"' -f 2 | sed "s/\s/-/")
+	ver=$(grep -o -P "(?<=[^_]APPLICATION_VERSION\s\")[^\s]*(?=\")" ${projectdir}/libqomp/src/defines.h)
 }
 
 prepare_sources()
@@ -330,7 +330,7 @@ prepare_qt5()
 	set_vars
 	project="qomp"
 	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, gstreamer1.0-x, gstreamer1.0-libav, gstreamer1.0-plugins-good, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
-	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=ON"
+	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	if [ -z "$1" ]; then
 		cmake_flags="${cmake_flags} -DUSE_QTCHOOSER=ON"
 	fi
