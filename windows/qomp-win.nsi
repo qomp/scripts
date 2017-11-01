@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 1.2.1"
+!define APPNAMEANDVERSION "qomp 1.3"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-1.2.1-win32.exe"
+OutFile "qomp-1.3-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
