@@ -480,9 +480,9 @@ build_i386 ()
 
 upload_to_lp()
 {
-	changesfile="$(cd ${develdir} && ls | grep .changes)"
+	changesfile=$(find ${develdir} -type f -name '*.changes')
 	cd ${develdir}
-	dput ppa:qomp/ppa "${develdir}/${changesfile}"
+	dput ppa:qomp/ppa ${changesfile}
 }
 
 check_deps()
