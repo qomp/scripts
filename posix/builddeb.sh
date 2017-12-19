@@ -287,10 +287,10 @@ ${pprefix}/share/qomp/translations"
 
 get_changelog ()
 {
-	chlfile=${projectdir}/Changelog.txt
-	startlog=$(cat ${chlfile} | sed -n '/[0-9]\{4\}$/{n;p;q;}' | sed 's/[[\.*^$/]/\\&/g')
-	endlog=$(cat ${chlfile} | sed -n '/^$/{g;1!p;q;};h' | sed 's/[[\.*^$/]/\\&/g')
-	changelogtext=$(cat ${chlfile} | sed -n "/${startlog}/,/${endlog}/p" | sed -n 's/^\s*/  /p')
+	chlfile=${projectdir}/CHANGELOG.md
+	startlog=$(grep -m 1 -oP '##\s*\d\.\d(\.\d)*\s*-\s*\d{4}-\d{2}-\d{2}' ${chlfile} | sed 's/[[\.*^$/]/\\&/g')
+	endlog=$(grep -m 2 -oP '##\s*\d\.\d(\.\d)*\s*-\s*\d{4}-\d{2}-\d{2}' ${chlfile} | tail -n1  | sed 's/[[\.*^$/]/\\&/g')
+	changelogtext=$(grep -ve '^$' ${chlfile} | sed -n "/${startlog}/,/${endlog}/{ /${startlog}/d; /${endlog}/d; p; }" | sed -n 's/^\s*/  /p')
 }
 
 get_version()
@@ -480,9 +480,9 @@ build_i386 ()
 
 upload_to_lp()
 {
-	changesfile="$(cd ${develdir} && ls | grep .changes)"
+	changesfile=$(find ${develdir} -type f -name '*.changes')
 	cd ${develdir}
-	dput ppa:qomp/ppa "${develdir}/${changesfile}"
+	dput ppa:qomp/ppa ${changesfile}
 }
 
 check_deps()
