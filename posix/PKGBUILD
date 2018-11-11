@@ -22,7 +22,7 @@ pkgver() {
 
 _gitroot=https://github.com/qomp/
 _gitname=qomp
-_plugins="filesystemplugin;urlplugin;prostopleerplugin;myzukaruplugin;yandexmusicplugin;lastfmplugin;tunetofileplugin;mprisplugin;notificationsplugin;cuteradioplugin"
+_plugins="filesystemplugin;urlplugin;poiskmplugin;myzukaruplugin;yandexmusicplugin;lastfmplugin;tunetofileplugin;mprisplugin;notificationsplugin;cuteradioplugin"
 build() {
   cd "$srcdir"
   msg "Connecting to GIT server...."
