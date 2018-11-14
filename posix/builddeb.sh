@@ -383,7 +383,7 @@ build_qomp_ppa()
 	cp -f ${builddir}/*.dsc	${develdir}/
 	cp -f ${builddir}/*.orig.tar.gz	${develdir}/
 	cp -f ${builddir}/*.diff.gz	${develdir}/
-	cp -f ${builddir}/*.build	${develdir}/
+	cp -f ${builddir}/*.buildinfo	${develdir}/
 	cp -f ${builddir}/*.changes	${develdir}/
 }
 
