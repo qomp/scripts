@@ -2,13 +2,13 @@
 
 ; Define your application name
 !define APPNAME "qomp"
-!define APPNAMEANDVERSION "qomp 1.4"
+!define APPNAMEANDVERSION "qomp 1.5"
 
 ; Main Install settings
 Name "${APPNAMEANDVERSION}"
 InstallDir "$PROGRAMFILES\qomp"
 InstallDirRegKey HKLM "Software\${APPNAME}" ""
-OutFile "qomp-1.4-win32.exe"
+OutFile "qomp-1.5-win32.exe"
 
 ; Use compression
 SetCompressor LZMA
@@ -47,8 +47,8 @@ Section "qomp" Section1
 
 	; Set Section Files and Shortcuts
 	SetOutPath "$INSTDIR\"
-	File "qomp\libeay32.dll"
-	File "qomp\ssleay32.dll"
+	File "qomp\libcrypto-1_1.dll"
+	File "qomp\libssl-1_1.dll"
 	File "qomp\libgcc_s_dw2-1.dll"
 	File "qomp\libstdc++-6.dll"
 	File "qomp\libwinpthread-1.dll"
@@ -65,7 +65,6 @@ Section "qomp" Section1
 	File "qomp\Qt5WinExtras.dll"
 	File "qomp\libtag.dll"
 	File "qomp\cue.dll"
-	File "qomp\zlib1.dll"
 	File "qomp\qomp-file.ico"
 	SetOutPath "$INSTDIR\audio\"
 	File "qomp\audio\qtaudio_windows.dll"
@@ -156,8 +155,8 @@ Section Uninstall
 	ExecWait "$INSTDIR\codecs\uninstall_all.bat"
 	
 	; Clean up qomp
-	Delete "$INSTDIR\libeay32.dll"
-	Delete "$INSTDIR\ssleay32.dll"
+	Delete "$INSTDIR\libcrypto-1_1.dll"
+	Delete "$INSTDIR\libssl-1_1.dll"
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 	Delete "$INSTDIR\libstdc++-6.dll"
 	Delete "$INSTDIR\libwinpthread-1.dll"
@@ -174,7 +173,6 @@ Section Uninstall
 	Delete "$INSTDIR\Qt5WinExtras.dll"
 	Delete "$INSTDIR\libtag.dll"
 	Delete "$INSTDIR\cue.dll"
-	Delete "$INSTDIR\zlib1.dll"
 	Delete "$INSTDIR\qomp-file.ico"
 
 	; Remove remaining directories
