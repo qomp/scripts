@@ -1,8 +1,11 @@
 #!/bin/bash
 
+#You may need to run next command in case you get build errors:
+#sudo xcode-select -s /Applications/Xcode.app/
+
 # Qt5 Settings
-MAC_SDK_VER=10.12
-QTDIR="${HOME}/Qt5.11.2/5.11.2/clang_64"
+MAC_SDK_VER=10.14
+QTDIR="${HOME}/Qt/5.15.2/clang_64"
 FRAMEWORKS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${MAC_SDK_VER}.sdk/System/Library/Frameworks"
 QT_FRAMEWORKS_DIR="${QTDIR}/lib"
 QT_TRANS_DIR="${QTDIR}/translations"
@@ -210,7 +213,7 @@ copy_resources() {
 	cp -f "./libqomp.1.0.0.dylib" "$contentsdir/Frameworks/libqomp.1.dylib"
 	install_name_tool -change "libqomp.1.dylib" "@executable_path/../Frameworks/libqomp.1.dylib" "$contentsdir/MacOS/qomp"
 	install_name_tool -id @executable_path/../Frameworks/libqomp.1.dylib $contentsdir/Frameworks/libqomp.1.dylib
-	install_name_tool -add_rpath "@executable_path/../Frameworks"  "$contentsdir/MacOS/qomp"
+#	install_name_tool -add_rpath "@executable_path/../Frameworks"  "$contentsdir/MacOS/qomp"
 
 	for m in $MORE_FRAMEWORKS; do
 		cp -a "${FRAMEWORKS_DIR}/${m}.framework" "$contentsdir/Frameworks"
