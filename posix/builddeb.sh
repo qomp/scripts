@@ -243,9 +243,7 @@ CFLAGS=-O2 -pthread
 CXXFLAGS=-O2 -pthread
 "
 
-scr_format="
-3.0 (quilt)
-"
+scr_format="3.0 (quilt)"
 
 mkdir -p source
 
