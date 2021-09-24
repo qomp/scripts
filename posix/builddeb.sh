@@ -133,7 +133,7 @@ get_src ()
 build_deb ()
 {
 	if [ ! -z "$1" ] && [ "$1" == "ppa" ]; then
-		debuild -kE48E329C -S
+		debuild -k2F983B48BBFCA533BDE162F1D4EFD571E48E329C -S
 	else
 		dpkg-buildpackage -rfakeroot -us -uc
 	fi
@@ -165,7 +165,7 @@ Section: ${section}
 Priority: extra
 Maintainer: ${Maintainer}
 Build-Depends: ${builddep}
-Standards-Version: 3.9.7
+Standards-Version: 4.1.0
 Homepage: ${qomphomepage}
 
 Package: ${project}
@@ -312,6 +312,9 @@ prepare_sources()
 		git submodule foreach "( git archive --format=tar HEAD ) \
 		| ( cd \"${ddir}/\${path}\" ; tar xf - )"
 		)
+		if [ -d "$1/android_openssl" ]; then
+			rm -rf ${1}/android_openssl
+		fi
 	fi
 	cd ${builddir}
 	tar -zcf ${project}_${ver}.orig.tar.gz *
