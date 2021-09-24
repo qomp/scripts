@@ -78,7 +78,7 @@ check_dir ()
 	then
 		if [ ! -d "$1" ]
 		then
-			tmpdir=$1			
+			tmpdir=$1
 			echo -e "${blue}making directory${nocolor} ${pink}$tmpdir...${nocolor}"
 			cd ${srcdir}
 			mkdir -p "$tmpdir"
@@ -159,7 +159,7 @@ ${changelogtext}
 
  -- ${Maintainer}  ${data}"
 
-compat="9"
+compat="10"
 control="Source: ${project}
 Section: ${section}
 Priority: extra
@@ -243,6 +243,12 @@ CFLAGS=-O2 -pthread
 CXXFLAGS=-O2 -pthread
 "
 
+scr_format="
+3.0 (quilt)
+"
+
+mkdir -p source
+
 	echo "${rules_qt}" > rules
 	echo "${docs}" > docs
 	echo "${changelog}" > changelog
@@ -250,6 +256,7 @@ CXXFLAGS=-O2 -pthread
 	echo "${control}" > control
 	echo "${copyright}" > copyright
 	echo "${dirs}" > dirs
+	echo "${scr_format}" > source/format
 	oscodename=${oldoscodname}
 }
 #
@@ -329,7 +336,7 @@ prepare_qt5()
 	get_src
 	set_vars
 	project="qomp"
-	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, gstreamer1.0-x, gstreamer1.0-libav, gstreamer1.0-plugins-good, libssl1.0.0, libx11-6, zlib1g (>=1:1.1.4)"
+	depends="\${shlibs:Depends}, \${misc:Depends}, libqt5multimedia5-plugins, gstreamer1.0-x, gstreamer1.0-libav, gstreamer1.0-plugins-good, libssl1.1, libx11-6, zlib1g (>=1:1.1.4)"
 	cmake_flags="-DCMAKE_INSTALL_PREFIX=/usr"
 	if [ -z "$1" ]; then
 		cmake_flags="${cmake_flags} -DUSE_QTCHOOSER=ON"
