@@ -359,6 +359,15 @@ check_qt_deps()
 	check_deps "debhelper cdbs qtmultimedia5-dev libqt5multimedia5-plugins qtbase5-dev qttools5-dev qttools5-dev-tools libtag1-dev libcue-dev pkg-config cmake libqt5x11extras5-dev"
 }
 
+copy_file()
+{
+	if test -n "$(find $1 -maxdepth 1 -name $2 -print -quit)"; then
+		cp -f $1/$2	$3/
+	else
+		echo "NO $2 files found at $1"
+	fi
+}
+
 build_qomp_qt5 ()
 {
 	if [ ! -z "$1" ]; then
@@ -373,9 +382,10 @@ build_qomp_qt5 ()
 	build_deb
 	check_dir ${exitdir}
 	check_dir ${exitdir}/dev
-	cp -f ${builddir}/*.deb	${exitdir}/
-	cp -f ${builddir}/*.dsc	${exitdir}/dev/
-	cp -f ${builddir}/*.tar.gz	${exitdir}/dev/
+	copy_file "${builddir}" "*.deb" "${exitdir}/"
+	copy_file "${builddir}" "*.dsc" "${exitdir}/dev/"
+	copy_file "${builddir}" "*.tar.xz" "${exitdir}/dev/"
+	copy_file "${builddir}" "*.tar.gz" "${exitdir}/dev/"
 }
 
 build_qomp_ppa()
@@ -388,11 +398,12 @@ build_qomp_ppa()
 	cd ${debdir}
 	build_deb ppa
 	check_dir ${develdir}
-	cp -f ${builddir}/*.dsc	${develdir}/
-	cp -f ${builddir}/*.orig.tar.gz	${develdir}/
-	cp -f ${builddir}/*.diff.gz	${develdir}/
-	cp -f ${builddir}/*.buildinfo	${develdir}/
-	cp -f ${builddir}/*.changes	${develdir}/
+	copy_file "${builddir}" "*.dsc" "${develdir}/"
+	copy_file "${builddir}" "*.orig.tar.gz" "${develdir}/"
+	copy_file "${builddir}" "*.diff.gz" "${develdir}/"
+	copy_file "${builddir}" "*.debian.tar.xz" "${develdir}/"
+	copy_file "${builddir}" "*.buildinfo" "${develdir}/"
+	copy_file "${builddir}" "*.changes" "${develdir}/"
 }
 
 set_commit()
